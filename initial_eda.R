@@ -32,6 +32,3 @@ ggplot(data, aes(x = Walc, y = G3)) +  geom_jitter() + geom_smooth(method = "lm"
 ggplot(data, aes(x = health, y = G3)) +  geom_jitter() + geom_smooth(method = "lm")
 
 
-ggplot(data, aes(x = famsize, y = G3)) +  geom_jitter() + geom_smooth(method = "lm")
-
-
