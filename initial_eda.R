@@ -18,10 +18,14 @@ group_by(data, G3) %>%
 data <- data[data$G3 != 0,]
 data <- data[data$G3 != 1,]
 
+# factors
+data <- mutate(data, Dalc = factor(Dalc),
+               Walc = factor(Walc))
+
 
 # is there a difference in success based on the schools?
 ggplot(data, aes(x = school, y = G3)) + geom_boxplot()
-# students at Gabriel Pereira do slight better on average than Mousinho da Silveira
+# students at Gabriel Pereira do ~1 point better on average than Mousinho da Silveira
 
 
 # Is this because one school has more urban/rural families?
@@ -35,6 +39,30 @@ group_by(data, school, reason) %>%
     summarize(count = n())
 # 28% chose GP for reputation, only 12% for MS
 # 52% chose MS for course, 37% for GP
+
+
+# does one gender perform better?
+ggplot(data, aes(x = sex, y = G3)) + geom_boxplot()
+# difference of ~1 point toward females
+
+
+# difference in drinking habits between the genders
+ggplot(data, aes(x = sex, y = Dalc, fill = Dalc)) + geom_col()
+
+ggplot(data, aes(x = sex, y = Walc, fill = Walc)) + geom_col()
+# males drink more heavily during workdays and weekends, both increase consumption on weekends
+
+
+# which gender more likely to be in romantic relationship?
+group_by(data, sex, romantic) %>%
+    summarize(count = n())
+# #8% yes in males, 28% females
+
+
+# affect on higher education?
+group_by(data, sex, higher) %>%
+    summarize(count = n())
+# 93 F to 89 male
 
 
 
