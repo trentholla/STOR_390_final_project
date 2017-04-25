@@ -123,7 +123,7 @@ ggplot(data, aes(x = school, y = G3, color = class)) +
 ggplot(data, aes(x = romantic, fill = studytime)) + 
     geom_bar(position = "fill") + 
     scale_y_continuous(labels = percent) +
-    labs(x = "In a romantic relationship?", y = "Percent of Population", title = "Students in relationships tend to study more") 
+    labs(x = "In a romantic relationship?", y = "Percent of Population", title = "Students in relationships tend to study more", fill = "Study Time") 
 ```
 
 
@@ -136,14 +136,14 @@ ggplot(data, aes(x = sex, fill = Dalc)) +
     geom_bar(position = "fill") + 
     scale_y_continuous(labels = percent) +
     scale_x_discrete(labels = c("Female" , "Male")) +
-    labs(x = "Sex", y = "Percent of Population", title = "Male students drink more than females on workdays") +
+    labs(x = "Sex", y = "Percent of Population", title = "Male students drink more than females on workdays", fill = "Workday Alcohol Consumption") +
     theme_classic()
 
 ggplot(data, aes(x = sex, fill = Walc)) + 
     geom_bar(position = "fill") + 
     scale_y_continuous(labels = percent) +
     scale_x_discrete(labels = c("Female" , "Male")) +
-    labs(x = "Sex", y = "Percent of Population", title = "All students increase alcohol consumption on the weekend") +
+    labs(x = "Sex", y = "Percent of Population", title = "All students increase alcohol consumption on the weekend", fill = "Weekend Alcohol Consumption") +
     theme_classic()
 ```
 
