@@ -21,8 +21,11 @@ data <- data[data$G3 != 1,]
 
 # factors
 data <- mutate(data, Dalc = factor(Dalc),
-               Walc = factor(Walc))
+               Walc = factor(Walc),
+               health = factor(health))
 
+
+# Schools -----------------------------------------------------------------
 
 # is there a difference in success based on the schools?
 ggplot(data, aes(x = school, y = G3)) + geom_boxplot()
@@ -40,6 +43,8 @@ ggplot(data, aes(x = school, fill = reason)) + geom_bar(position = "fill") + sca
 # 52% chose MS for course, 37% for GP
 
 
+# Gender ------------------------------------------------------------------
+
 # does one gender perform better?
 ggplot(data, aes(x = sex, y = G3)) + geom_boxplot()
 # difference of ~1 point toward females
@@ -56,14 +61,18 @@ ggplot(data, aes(x = sex, fill = Walc)) + geom_bar(position = "fill") + scale_y_
 ggplot(data, aes(x = sex, fill = romantic)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
 # 38% yes in males, 28% females
 
+
 # affect on higher education?
 ggplot(data, aes(x = sex, fill = higher)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
 # 93 F to 89 male
 
 
+# Age ---------------------------------------------------------------------
+
 # age affect on grades?
 ggplot(data, aes(x = age, y = G3)) + geom_jitter() +geom_smooth(method = "lm")
 # meh, much older tends to have medium or low
+
 
 # age and alcohol consumption?
 ggplot(data, aes(x = age, fill = Dalc)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
@@ -72,9 +81,20 @@ ggplot(data, aes(x = age, fill = Walc)) + geom_bar(position = "fill") + scale_y_
 # drinking for all groups goes up on the weekend, kinda a peak at age 17
 
 
+# Drinking ----------------------------------------------------------------
+
+# more drinking == poorer health?
+ggplot(data, aes(x = Walc, fill = health)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# yes, clear trend in the 1 health
+
+
+#
 
 
 
+
+
+# Lin Regs ----------------------------------------------------------------
 
 # weekly study time
 ggplot(data, aes(x = studytime, y = G3))+ geom_jitter() + geom_smooth(method = "lm")
