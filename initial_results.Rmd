@@ -39,14 +39,18 @@ data <- data[data$G3 != 1,]
 ```
 
 ```{r factorization, include=F}
-data <- mutate(data, studytime = factor(studytime),
-               health = factor(health))
+data <- mutate(data, Dalc = factor(Dalc),
+               Walc = factor(Walc),
+               health = factor(health),
+               goout = factor(goout),
+               studytime = factor(studytime))
 ```
 
 # --------------------------------------------------------------------
 
 ### Factors Affecting Final Grades
 
+#### Studying
 
 Is our intutition that students who study more perform better correct? Weekly study time is divided into 4 groups: where "1"" is less than 2 hours and "4"" is greater than 10. We see in the plot below that on average, final grades increase as study time increases.
 ```{r study, echo=F}
@@ -55,6 +59,8 @@ ggplot(data, aes(x = studytime, y = G3))+
     labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades') +
     theme_classic()
 ```
+
+#### Health
 
 The following graph has an interesting result, as the healthiest group of students (5) have one of the lowest average grades (which is somewhat counterintuitive). However, the difference in average grades in by less than 1 point among all health levels. 
 ```{r health, echo=F}
@@ -87,22 +93,40 @@ ggplot(data, aes(x = school, y = G3, color = class)) +
 
 ```
 
-<<<<<<< HEAD
-As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. This was accomplished by splitting the data into a training and test set. The models were created using the training set and tested on the test set in order to prevent overfitting. The predicted values given by the models come close to the actual ones, while the test errors are only slightly greater than the training errors. Another interesting find is that most of the variables were not statistically significant in the regression.
-```{r}
-#training and test sets ------------------------------------------
-=======
 
+Male students drink more than females, but both genders increase their consumption over the weekend.
+```{r drinking, echo=F}
+ggplot(data, aes(x = sex, fill = Dalc)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) +
+    scale_x_discrete(labels = c("Female" , "Male")) +
+    labs(x = "Sex", y = "Percent of Population", title = "Male students drink more than females on workdays") +
+    theme_classic()
 
+ggplot(data, aes(x = sex, fill = Walc)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) +
+    scale_x_discrete(labels = c("Female" , "Male")) +
+    labs(x = "Sex", y = "Percent of Population", title = "All students increase alcohol consumption on the weekend") +
+    theme_classic()
+```
 
 
 # --------------------------------------------------------------------
 
 ### Preliminary Models
 
+<<<<<<< HEAD
 #As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. The predicted values come close to the actual ones. (Calculate test error tomorrow).
+=======
+
+As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. This was accomplished by splitting the data into a training and test set. The models were created using the training set and tested on the test set in order to prevent overfitting. The predicted values given by the models come close to the actual ones, while the test errors are only slightly greater than the training errors. Another interesting find is that most of the variables were not statistically significant in the regression.
+
+
+>>>>>>> 019a0b0ba2b9c7d7a2aadd8be3e3e0c0404cdaab
 ```{r linear}
->>>>>>> fa048a92bbc5ab01f420516e354c93d7a818375e
+#training and test sets ------------------------------------------
+
 n <- dim(data)[1]
 
 # number of observations that go in the training st
@@ -122,6 +146,10 @@ model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu
 
 summary(model1)
 vif(model1)
+<<<<<<< HEAD
+=======
+MSE1 <- mean(model1$residuals^2)
+>>>>>>> 019a0b0ba2b9c7d7a2aadd8be3e3e0c0404cdaab
 
 #other models -------------------------------------------
 model2 <- lm(G3 ~ age + schoolsup + paid + absences + G1 + G2 + class, train)
@@ -139,7 +167,7 @@ MSE5 <- mean(model5$residuals^2)
 models <- list(model1, model2, model3, model4, model5)
 
 #error --------------------------------------------------
-error <- tibble(model_numberr=c(1,2,3,4,5),
+error <- tibble(model_number=c(1,2,3,4,5),
                 MSE_tr=c(MSE1, MSE2, MSE3, MSE4, MSE5))
 
 error <- error %>% 
@@ -166,8 +194,8 @@ error %>%
     rename(tr=MSE_tr, tst=MSE_tst) %>% 
     gather(key=type, value=error, tr, tst) %>% 
     ggplot() +
-    geom_point(aes(x=degree, y=log10(error), color=type)) +
-    geom_line(aes(x=degree, y=log10(error), color=type)) + 
+    geom_point(aes(x=type, y=log10(error), color=type)) +
+    geom_line(aes(x=type, y=log10(error), color=type)) + 
     labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
 ```
 
