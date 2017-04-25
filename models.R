@@ -48,7 +48,7 @@ summary(model5)
 MSE5 <- mean(model5$residuals^2)
 
 models <- list(model1, model2, model3, model4, model5)
-#error -----------------------------------------
+#error -----------------------------------------------------
 error <- tibble(model_numberr=c(1,2,3,4,5),
                 MSE_tr=c(MSE1, MSE2, MSE3, MSE4, MSE5))
 
