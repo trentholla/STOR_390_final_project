@@ -20,11 +20,11 @@ group_by(data, G3) %>%
 data <- data[data$G3 != 0,]
 data <- data[data$G3 != 1,]
 
-<<<<<<< HEAD
+
 # final grades
 ggplot(data, aes(x=G3)) + geom_bar() + 
     labs(x = 'Final Grade', y = '# of Students', title = 'Distribution of Final Grades')
-=======
+
 # factors
 data <- mutate(data, Dalc = factor(Dalc),
                Walc = factor(Walc),

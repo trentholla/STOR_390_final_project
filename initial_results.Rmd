@@ -39,8 +39,11 @@ data <- data[data$G3 != 1,]
 ```
 
 ```{r factorization, include=F}
-data <- mutate(data, studytime = factor(studytime),
-               health = factor(health))
+data <- mutate(data, Dalc = factor(Dalc),
+               Walc = factor(Walc),
+               health = factor(health),
+               goout = factor(goout),
+               studytime = factor(studytime))
 ```
 
 # --------------------------------------------------------------------
@@ -87,9 +90,23 @@ ggplot(data, aes(x = school, y = G3, color = class)) +
 
 ```
 
+Male students drink more than females, but both genders increase their consumption over the weekend.
+```{r drinking, echo=F}
+ggplot(data, aes(x = sex, fill = Dalc)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) +
+    scale_x_discrete(labels = c("Female" , "Male")) +
+    labs(x = "Sex", y = "Percent of Population", title = "Male students drink more than females on workdays") +
+    theme_classic()
 
+ggplot(data, aes(x = sex, fill = Walc)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) +
+    scale_x_discrete(labels = c("Female" , "Male")) +
+    labs(x = "Sex", y = "Percent of Population", title = "All students increase alcohol consumption on the weekend") +
+    theme_classic()
 
-
+```
 
 # --------------------------------------------------------------------
 
