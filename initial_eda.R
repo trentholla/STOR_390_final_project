@@ -138,6 +138,9 @@ ggplot(data, aes(x = Fedu, fill = famsup)) + geom_bar(position = "fill") + scale
 # positive relation, as would be expected
 
 
+# family support and grade
+ggplot(data, aes(x = famsup, y = G3)) + geom_jitter()
+
 
 # Study Time --------------------------------------------------------------
 

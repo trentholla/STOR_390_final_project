@@ -42,7 +42,6 @@ data <- data[data$G3 != 1,]
 data <- mutate(data, Dalc = factor(Dalc),
                Walc = factor(Walc),
                health = factor(health),
-               goout = factor(goout),
                studytime = factor(studytime))
 ```
 
@@ -60,6 +59,27 @@ ggplot(data, aes(x = studytime, y = G3))+
     theme_classic()
 ```
 
+#### Absences
+
+As expected, the more time a student is absent during the year, the lower their final grade is. However, we do not know if the lower grade is specifically because they missed class and the infomation taught that day. It's possbile that the reason they are absent (e.g. health issues) is actually the causing the lower grade.  
+```{r absences, echo=F}
+ggplot(data, aes(x = absences, y = G3)) + 
+    geom_jitter(width = 1) + 
+    geom_smooth(method = "lm", color = "red") +
+    labs(x = "Number of Absences", y = "Final Grade", title = "Absences lead to lower final grades")
+
+```
+
+#### Mother Education
+```{r medu, echo=F}
+ggplot(data, aes(x = Medu, y = G3)) + 
+    geom_jitter(width = 1) + 
+    geom_smooth(method = "lm", color = "red") + 
+    labs(x = "Number of Absences", y = "Final Grade", title = "")
+
+```
+
+
 #### Health
 
 The following graph has an interesting result, as the healthiest group of students (5) have one of the lowest average grades (which is somewhat counterintuitive). However, the difference in average grades in by less than 1 point among all health levels. 
@@ -73,6 +93,8 @@ ggplot(data, aes(x = health, y = G3)) +
 # --------------------------------------------------------------------
 
 ### Other Interesting Relationships
+
+#### Why Students Choose a School
 
 We can see below that a higher percentage of the students at Gabriel Pereira chose that school for it's reputation. It makes sense that Gabriel Pereira would have a better reputation, since it has higher scores in both Math and Portuguese. 
 ```{r reason, echo=F}
@@ -93,6 +115,7 @@ ggplot(data, aes(x = school, y = G3, color = class)) +
 
 ```
 
+#### Genders and Drinking Habits
 
 Male students drink more than females, but both genders increase their consumption over the weekend.
 ```{r drinking, echo=F}
