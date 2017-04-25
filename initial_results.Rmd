@@ -123,14 +123,14 @@ ggplot(data, aes(x = sex, fill = Dalc)) +
     geom_bar(position = "fill") + 
     scale_y_continuous(labels = percent) +
     scale_x_discrete(labels = c("Female" , "Male")) +
-    labs(x = "Sex", y = "Percent of Population", title = "Male students drink more than females on workdays") +
+    labs(x = "Sex", y = "Percent of Population", title = "Male students drink more than females on workdays", color = "Workday Alcohol Consumption") +
     theme_classic()
 
 ggplot(data, aes(x = sex, fill = Walc)) + 
     geom_bar(position = "fill") + 
     scale_y_continuous(labels = percent) +
     scale_x_discrete(labels = c("Female" , "Male")) +
-    labs(x = "Sex", y = "Percent of Population", title = "All students increase alcohol consumption on the weekend") +
+    labs(x = "Sex", y = "Percent of Population", title = "All students increase alcohol consumption on the weekend", color = "Weekend Alcohol Consumption") +
     theme_classic()
 ```
 
@@ -139,7 +139,7 @@ ggplot(data, aes(x = sex, fill = Walc)) +
 
 ### Preliminary Models
 
-As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. This was accomplished by splitting the data into a training and test set. The models were created using the training set and tested on the test set in order to prevent overfitting. The predicted values given by the models come close to the actual ones, while the test errors are only slightly greater than the training errors. The variables that seemed to impact the final grade the most were the previous test grades. While this makes sense, it does not help determine if certain student behaviors impact their grade. For further testing, more models will be made that do not rely as heavily on past test scores as these.
+As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modeling. This was accomplished by splitting the data into a training and test set. The models were created using the training set and tested on the test set in order to prevent overfitting. The predicted values given by the models come close to the actual ones, while the test errors are only slightly greater than the training errors. The variables that seemed to impact the final grade the most were the previous test grades. While this makes sense, it does not help determine if certain student behaviors impact their grade. For further testing, more models will be made that do not rely as heavily on past test scores as these.
 
 ```{r linear}
 #training and test sets ------------------------------------------
