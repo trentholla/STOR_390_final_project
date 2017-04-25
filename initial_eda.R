@@ -1,3 +1,4 @@
+# Setup -------------------------------------------------------------------
 library(tidyverse)
 library(scales)
 
@@ -195,11 +196,8 @@ ggplot(data, aes(x = paid, y = G3)) + geom_boxplot()
 # actually lower for extra paid classes, too much on their plates?
 
 
-## stop
 
-
-
-# Lin Regs ----------------------------------------------------------------
+# Original Lin Regs ----------------------------------------------------------------
 
 # weekly study time
 ggplot(data, aes(x = studytime, y = G3))+ geom_jitter() + geom_smooth(method = "lm")
