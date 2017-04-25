@@ -23,7 +23,8 @@ data <- data[data$G3 != 1,]
 data <- mutate(data, Dalc = factor(Dalc),
                Walc = factor(Walc),
                health = factor(health),
-               goout = factor(goout))
+               goout = factor(goout),
+               studytime = factor(studytime))
 
 
 # Schools -----------------------------------------------------------------
@@ -131,9 +132,54 @@ ggplot(data, aes(x = Fedu, fill = famsup)) + geom_bar(position = "fill") + scale
 
 
 
+# Study Time --------------------------------------------------------------
+
+# study time on final grade
+ggplot(data, aes(x = studytime, y = G3)) + geom_jitter() +geom_smooth(method = "lm")
+# positive relationship, as expected
+
+
+# going out effect on studytime
+ggplot(data, aes(x = goout, fill = studytime)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# no clear trend
+
+
+# romantic relationship effect on studytime
+ggplot(data, aes(x = romantic, fill = studytime)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# interestingly, those in a relationship study more
+
+
+
+# Failures/Absences -------------------------------------------------------
+
+# failures and grades
+ggplot(data, aes(x = failures, y = G3)) + geom_jitter()
+# negative correlation as expected
+
+
+# absences and grades
+ggplot(data, aes(x = absences, y = G3)) + geom_jitter()
+# negative correlation as expected
+
+
+# failures and bad health?
+ggplot(data, aes(x = health, y = absences)) + geom_jitter()
+# absences probably not caused by bad health
+
+# absences from difficultly getting to school?
+ggplot(data, aes(x = traveltime, y = absences)) + geom_jitter()
+# nope
 
 
 ## stop
+
+
+
+
+
+
+
+
 
 
 # Lin Regs ----------------------------------------------------------------
