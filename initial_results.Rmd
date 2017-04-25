@@ -3,32 +3,41 @@ title: 'EDA: Initial Results'
 author: 'STOR 390: Group 5'
 output: html_document
 ---
-# ----------------------------------------------------
-The two data sets, one from a Math class and the other from a Portugese Class, are imported and merged. Observations with a 0 as the final grade were dropped, as the other variables did not support this outcome, meaning there were other factors beyond this data that influenced the scores.
-```{r}
+
+# --------------------------------------------------------------------
+
+```{r setup, include=F}
 library(tidyverse)
 library(scales)
+library(car)
+```
 
+The two data sets, one from a Math class and the other from a Portuguese Class, are imported and merged. Observations with a 0 as the final grade (G3) were dropped, as the other variables did not support this outcome. We assume there were other factors that led to the 0 final scores (e.g. the student did not take the assessment). We also removed the observation with the sole final grade of 1 as an outlier (see grouped summary table below). 
+
+```{r data}
 # Read in data
 math <- read.table("student-mat.csv", sep=";", header=TRUE)
 port <- read.table("student-por.csv", sep=";", header=TRUE)
 
-# merge data to look at general aptitude 
+
+# Merge data to look at general student aptitude rather than separate math/Portuguese scores 
 math <- mutate(math, class = "M")
 port <- mutate(port, class = "P")
 
 data <- rbind(math, port)
 
 
-# remove those with 0 or 1 as G3 score
+# Check final score distributions
 group_by(data, G3) %>%
     summarize(cnt = n())
 
+# Remove observations with 0 or 1 as G3 score
 data <- data[data$G3 != 0,]
 data <- data[data$G3 != 1,]
 ```
 
 # --------------------------------------------------------------------
+
 Does studying improve grades? For the most part, yes. There is a general increasing trend between the 4 study time groups. This variable was also considered significant by the linear model, meaning the trend is statistically significant as well.
 ```{r}
 ggplot(data, aes(x = studytime, y = G3, color = class, shape = class))+ geom_jitter() + 
