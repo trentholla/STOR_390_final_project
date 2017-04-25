@@ -140,6 +140,7 @@ ggplot(data, aes(x = Fedu, fill = famsup)) + geom_bar(position = "fill") + scale
 
 # family support and grade
 ggplot(data, aes(x = famsup, y = G3)) + geom_jitter()
+# not super informative
 
 
 # Study Time --------------------------------------------------------------

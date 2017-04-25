@@ -117,6 +117,17 @@ ggplot(data, aes(x = school, y = G3, color = class)) +
 
 ```
 
+
+#### Romantic Relationships
+```{r romantic, echo=F}
+ggplot(data, aes(x = romantic, fill = studytime)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) +
+    labs(x = "In a romantic relationship?", y = "Percent of Population", title = "Students in relationships tend to study more") 
+```
+
+
+
 #### Genders and Drinking Habits
 
 Male students drink more than females, but both genders increase their consumption over the weekend.
