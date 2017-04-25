@@ -198,8 +198,8 @@ ggplot(data, aes(x = nursery, y = G3)) + geom_boxplot()
 
 # extra paid classes on grade
 ggplot(data, aes(x = paid, y = G3)) + geom_boxplot()
-# actually lower for extra paid classes, too much on their plates?
-
+# actually lower for extra paid classes, too much on their plates? Or only students who would
+# need extra classes take them
 
 
 # Original Lin Regs ----------------------------------------------------------------
@@ -228,7 +228,9 @@ lin_reg2 <- lm(G3 ~ Dalc, data)
 summary(lin_reg2)
 
 # weekday alcohol consumption
-ggplot(data, aes(x = Walc, y = G3)) +  geom_jitter() + geom_smooth(method = "lm")
+ggplot(data, aes(x = Walc, y = G3)) +  geom_jitter() + geom_smooth(method = "lm") +
+    labs(x = 'Weekday Alcohol Consumption', y = 'Final Grade', 
+         title = 'Weekday Drinking Harms Final Grades')
 >>>>>>> cd597dd7c88aa25aaa32056b6c59714bd95ab34f
 
 lin_reg3 <- lm(G3 ~ Walc, data)

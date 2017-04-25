@@ -3,5 +3,75 @@ title: 'EDA: Initial Results'
 author: 'STOR 390: Group 5'
 output: html_document
 ---
+# ----------------------------------------------------
+The two data sets, one from a Math class and the other from a Portugese Class, are imported and merged. Observations with a 0 as the final grade were dropped, as the other variables did not support this outcome, meaning there were other factors beyond this data that influenced the scores.
+```{r}
+library(tidyverse)
+library(scales)
 
+# Read in data
+math <- read.table("student-mat.csv", sep=";", header=TRUE)
+port <- read.table("student-por.csv", sep=";", header=TRUE)
+
+# merge data to look at general aptitude 
+math <- mutate(math, class = "M")
+port <- mutate(port, class = "P")
+
+data <- rbind(math, port)
+
+
+# remove those with 0 or 1 as G3 score
+group_by(data, G3) %>%
+    summarize(cnt = n())
+
+data <- data[data$G3 != 0,]
+data <- data[data$G3 != 1,]
+```
+
+# --------------------------------------------------------------------
+Does studying improve grades? For the most part, yes. There is a general increasing trend between the 4 study time groups. This variable was also considered significant by the linear model, meaning the trend is statistically significant as well.
+```{r}
+ggplot(data, aes(x = studytime, y = G3, color = class, shape = class))+ geom_jitter() + 
+    geom_smooth(method = "lm") + 
+    labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades')
+```
+
+This graph has the most interesting result, for the healthiest individuals (5) have a lower average grade than every other health level. This could be for many reasons, such as a greater sample size or these students focus on their health more than school. This theory can be tested with another plot of health vs free time, but that graph is inconclusive just by looking at it.
+```{r}
+ggplot(data, aes(x = health, y = G3, color = class, shape = class)) +  geom_jitter() + geom_smooth(method = "lm") +
+    labs(x = 'Health Status', y = 'Final Grade', title = 'Final Grade Not Impacted by Health')
+
+ggplot(data, aes(x = health, y = freetime, color = class, shape = class)) +  geom_jitter() + geom_vline(xintercept = 0.5:5.5) + geom_hline(yintercept = 0.5:5.5) +
+    labs(x = 'Health Status', y = 'Free Time', title = 'Final Grade Not Impacted by Health')
+```
+
+As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. The predicted values come close to the actual ones. (Calculate test error tomorrow).
+```{r}
+n <- dim(data)[1]
+
+# number of observations that go in the training st
+n_tr <- floor(n * .8)
+
+
+# randomly select n_tr numbers, without replacement, from 1...n
+tr_indices <- sample(x=1:n, size=n_tr, replace=FALSE)
+
+# break the data into a non-overlapping train and test set
+train <- data[tr_indices, ]
+test <- data[-tr_indices, ]
+
+
+#comprehensive linear model 
+woah <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob +
+               reason + guardian + traveltime + studytime + failures + schoolsup + famsup + 
+               paid + activities + nursery + higher + internet + romantic + famrel + 
+               freetime + goout + Dalc + Walc + health + absences + G1 + G2, data)
+summary(woah)
+vif(woah)
+
+new_grade <- predict(woah, newdata = test)
+test <- test %>% 
+            mutate(grade_pred=new_grade)
+print(test)
+```
 
