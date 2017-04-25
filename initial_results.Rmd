@@ -38,32 +38,65 @@ data <- data[data$G3 != 0,]
 data <- data[data$G3 != 1,]
 ```
 
+```{r factorization, include=F}
+data <- mutate(data, studytime = factor(studytime),
+               health = factor(health))
+```
+
 # --------------------------------------------------------------------
 
 ### Factors Affecting Final Grades
 
 
 Is our intutition that students who study more perform better correct? Weekly study time is divided into 4 groups: where "1"" is less than 2 hours and "4"" is greater than 10. We see in the plot below that on average, final grades increase as study time increases.
-```{r study}
-data <- mutate(data, studytime = factor(studytime))
-
+```{r study, echo=F}
 ggplot(data, aes(x = studytime, y = G3))+ 
     geom_boxplot() + 
     labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades') +
     theme_classic()
 ```
 
-This graph has the most interesting result, for the healthiest individuals (5) have a lower average grade than every other health level. This could be for many reasons, such as a greater sample size or these students focus on their health more than school. This theory can be tested with another plot of health vs free time, but that graph is inconclusive just by looking at it.
-```{r}
-ggplot(data, aes(x = health, y = G3, color = class, shape = class)) +  geom_jitter() + geom_smooth(method = "lm") +
-    labs(x = 'Health Status', y = 'Final Grade', title = 'Final Grade Not Impacted by Health')
-
-ggplot(data, aes(x = health, y = freetime, color = class, shape = class)) +  geom_jitter() + geom_vline(xintercept = 0.5:5.5) + geom_hline(yintercept = 0.5:5.5) +
-    labs(x = 'Health Status', y = 'Free Time', title = 'Final Grade Not Impacted by Health')
+The following graph has an interesting result, as the healthiest group of students (5) have one of the lowest average grades (which is somewhat counterintuitive). However, the difference in average grades in by less than 1 point among all health levels. 
+```{r health, echo=F}
+ggplot(data, aes(x = health, y = G3)) +  
+    geom_boxplot() + 
+    labs(x = 'Health Status', y = 'Final Grade', title = 'Final Grade Not Impacted by Health') +
+    theme_classic()
 ```
 
+# --------------------------------------------------------------------
+
+### Other Interesting Relationships
+
+We can see below that a higher percentage of the students at Gabriel Pereira chose that school for it's reputation. It makes sense that Gabriel Pereira would have a better reputation, since it has higher scores in both Math and Portuguese. 
+```{r reason, echo=F}
+ggplot(data, aes(x = school, fill = reason)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) + 
+    scale_x_discrete(labels = c("Gabriel Pereira" , "Mousinho da Silveira")) +
+    labs(x = "School", y = "Percent of Student Population", title = "Higher percentage of students chose Gabriel Pereira for it's reputation") +
+    theme_classic()
+
+ggplot(data, aes(x = school, y = G3, color = class)) + 
+    geom_boxplot() +
+    scale_x_discrete(labels = c("Gabriel Pereira" , "Mousinho da Silveira")) +
+    scale_color_discrete(name = "Type of Class", labels = c("Math", "Portuguese")) +
+    labs(x = "School", y = "Final Grade", title = "Gabriel Pereira students have higher average scores in both math and Portuguese") + 
+    theme_classic()
+
+
+```
+
+
+
+
+
+# --------------------------------------------------------------------
+
+### Preliminary Models
+
 As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. The predicted values come close to the actual ones. (Calculate test error tomorrow).
-```{r}
+```{r linear}
 n <- dim(data)[1]
 
 # number of observations that go in the training st
