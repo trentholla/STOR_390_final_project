@@ -1,4 +1,5 @@
 library(tidyverse)
+library(scales)
 
 # Read in data
 math <- read.table("student-mat.csv", sep=";", header=TRUE)
@@ -29,14 +30,12 @@ ggplot(data, aes(x = school, y = G3)) + geom_boxplot()
 
 
 # Is this because one school has more urban/rural families?
-group_by(data, address, school) %>%
-    summarize(count = n())
+ggplot(data, aes(x = school, fill = address)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
 # MS is about 50/50, GP is 80/20
 
 
 # Reason why people pick each school?
-group_by(data, school, reason) %>%
-    summarize(count = n())
+ggplot(data, aes(x = school, fill = reason)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
 # 28% chose GP for reputation, only 12% for MS
 # 52% chose MS for course, 37% for GP
 
@@ -47,16 +46,26 @@ ggplot(data, aes(x = sex, y = G3)) + geom_boxplot()
 
 
 # difference in drinking habits between the genders
-ggplot(data, aes(x = sex, y = Dalc, fill = Dalc)) + geom_col()
+ggplot(data, aes(x = sex, fill = Dalc)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
 
-ggplot(data, aes(x = sex, y = Walc, fill = Walc)) + geom_col()
+ggplot(data, aes(x = sex, fill = Walc)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
 # males drink more heavily during workdays and weekends, both increase consumption on weekends
 
 
 # which gender more likely to be in romantic relationship?
-group_by(data, sex, romantic) %>%
-    summarize(count = n())
-# #8% yes in males, 28% females
+ggplot(data, aes(x = sex, fill = romantic)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# 38% yes in males, 28% females
+
+
+# age affect on grades?
+ggplot(data, aes(x = age, y = G3)) + geom_jitter() +geom_smooth(method = "lm")
+# meh, much older tends to have medium or low
+
+# age and alcohol consumption?
+ggplot(data, aes(x = age, fill = Dalc)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+
+ggplot(data, aes(x = age, fill = Walc)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# drinking for all groups goes up on the weekend, kinda a peak at age 17
 
 
 # affect on higher education?
@@ -68,18 +77,14 @@ group_by(data, sex, higher) %>%
 
 # weekly study time
 ggplot(data, aes(x = studytime, y = G3))+ geom_jitter() + geom_smooth(method = "lm")
-lin_reg1 <- lm(G3 ~ studytime, data)
-summary(lin_reg1)
+
 # workday alcohol consumption
 ggplot(data, aes(x = Dalc, y = G3)) +  geom_jitter() + geom_smooth(method = "lm")
-lin_reg2 <- lm(G3 ~ Dalc, data)
-summary(lin_reg2)
+
 # weekday alcohol consumption
 ggplot(data, aes(x = Walc, y = G3)) +  geom_jitter() + geom_smooth(method = "lm")
-lin_reg3 <- lm(G3 ~ Walc, data)
-summary(lin_reg3)
+
 # health
 ggplot(data, aes(x = health, y = G3)) +  geom_jitter() + geom_smooth(method = "lm")
-lin_reg4 <- lm(G3 ~ health, data)
-summary(lin_reg4)
+
 
