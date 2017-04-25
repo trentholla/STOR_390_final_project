@@ -100,7 +100,7 @@ As for the initial model, a simple linear regression has a high R^2 value and is
 
 ### Preliminary Models
 
-As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. The predicted values come close to the actual ones. (Calculate test error tomorrow).
+#As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. The predicted values come close to the actual ones. (Calculate test error tomorrow).
 ```{r linear}
 >>>>>>> fa048a92bbc5ab01f420516e354c93d7a818375e
 n <- dim(data)[1]
@@ -118,26 +118,22 @@ test <- data[-tr_indices, ]
 
 
 #comprehensive linear model ----------------------------------- 
-woah <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + nursery + higher + internet + romantic + famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class, train)
+model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + nursery + higher + internet + romantic + famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class, train)
 
-summary(woah)
-vif(woah)
+summary(model1)
+vif(model1)
 
 #other models -------------------------------------------
 model2 <- lm(G3 ~ age + schoolsup + paid + absences + G1 + G2 + class, train)
-summary(model2)
 MSE2 <- mean(model2$residuals^2)
 
 model3 <- lm(G3 ~ G1 + G2 + class, train, na.action = na.omit)
-summary(model3)
 MSE3 <- mean(model3$residuals^2)
 
 model4 <- lm(G3 ~ age + schoolsup + paid + absences + G1 + G2 +I(G1^2) + I(G2^2) + class, train)
-summary(model4)
 MSE4 <- mean(model4$residuals^2)
 
 model5 <- lm(G3 ~ absences + G1 + G2 + I(G1*G2) + class, train)
-summary(model5)
 MSE5 <- mean(model5$residuals^2)
 
 models <- list(model1, model2, model3, model4, model5)
@@ -145,11 +141,6 @@ models <- list(model1, model2, model3, model4, model5)
 #error --------------------------------------------------
 error <- tibble(model_numberr=c(1,2,3,4,5),
                 MSE_tr=c(MSE1, MSE2, MSE3, MSE4, MSE5))
-
-ggplot(error)+
-    geom_point(aes(x=model_number, y=MSE_tr)) +
-    geom_line(aes(x=model_number, y=MSE_tr)) +
-    labs(x = 'Model Number', y = 'Training Error', title = 'Training Error for the Models')
 
 error <- error %>% 
     add_column(MSE_tst=rep(0, 5))
@@ -178,6 +169,5 @@ error %>%
     geom_point(aes(x=degree, y=log10(error), color=type)) +
     geom_line(aes(x=degree, y=log10(error), color=type)) + 
     labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
-error
 ```
 
