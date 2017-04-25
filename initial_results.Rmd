@@ -50,6 +50,7 @@ data <- mutate(data, Dalc = factor(Dalc),
 
 ### Factors Affecting Final Grades
 
+#### Studying
 
 Is our intutition that students who study more perform better correct? Weekly study time is divided into 4 groups: where "1"" is less than 2 hours and "4"" is greater than 10. We see in the plot below that on average, final grades increase as study time increases.
 ```{r study, echo=F}
@@ -58,6 +59,8 @@ ggplot(data, aes(x = studytime, y = G3))+
     labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades') +
     theme_classic()
 ```
+
+#### Health
 
 The following graph has an interesting result, as the healthiest group of students (5) have one of the lowest average grades (which is somewhat counterintuitive). However, the difference in average grades in by less than 1 point among all health levels. 
 ```{r health, echo=F}
@@ -135,10 +138,11 @@ test <- data[-tr_indices, ]
 
 
 #comprehensive linear model ----------------------------------- 
-woah <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + nursery + higher + internet + romantic + famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class, train)
+model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + nursery + higher + internet + romantic + famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class, train)
 
-summary(woah)
-vif(woah)
+summary(model1)
+vif(model1)
+MSE1 <- mean(model1$residuals^2)
 
 #other models -------------------------------------------
 model2 <- lm(G3 ~ age + schoolsup + paid + absences + G1 + G2 + class, train)
@@ -160,7 +164,7 @@ MSE5 <- mean(model5$residuals^2)
 models <- list(model1, model2, model3, model4, model5)
 
 #error --------------------------------------------------
-error <- tibble(model_numberr=c(1,2,3,4,5),
+error <- tibble(model_number=c(1,2,3,4,5),
                 MSE_tr=c(MSE1, MSE2, MSE3, MSE4, MSE5))
 
 ggplot(error)+

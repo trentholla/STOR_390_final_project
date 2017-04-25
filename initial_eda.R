@@ -30,7 +30,8 @@ data <- mutate(data, Dalc = factor(Dalc),
                Walc = factor(Walc),
                health = factor(health),
                goout = factor(goout),
-               studytime = factor(studytime))
+               studytime = factor(studytime),
+               failures = factor(failures))
 
 
 # Schools -----------------------------------------------------------------
@@ -67,7 +68,7 @@ ggplot(data, aes(x = sex, fill = Walc)) + geom_bar(position = "fill") + scale_y_
 
 # which gender more likely to be in romantic relationship?
 ggplot(data, aes(x = sex, fill = romantic)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
-# 38% yes in males, 28% females
+# 38% yes in females, 28% males
 
 
 # affect on higher education?
@@ -159,12 +160,12 @@ ggplot(data, aes(x = romantic, fill = studytime)) + geom_bar(position = "fill") 
 # Failures/Absences -------------------------------------------------------
 
 # failures and grades
-ggplot(data, aes(x = failures, y = G3)) + geom_jitter()
+ggplot(data, aes(x = failures, y = G3)) + geom_boxplot()
 # negative correlation as expected
 
 
 # absences and grades
-ggplot(data, aes(x = absences, y = G3)) + geom_jitter()
+ggplot(data, aes(x = absences, y = G3)) + geom_jitter() + geom_smooth(method = "lm")
 # negative correlation as expected
 
 
