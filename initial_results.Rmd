@@ -139,10 +139,14 @@ ggplot(data, aes(x = sex, fill = Walc)) +
 
 ### Preliminary Models
 
+<<<<<<< HEAD
+#As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. The predicted values come close to the actual ones. (Calculate test error tomorrow).
+=======
 
 As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. This was accomplished by splitting the data into a training and test set. The models were created using the training set and tested on the test set in order to prevent overfitting. The predicted values given by the models come close to the actual ones, while the test errors are only slightly greater than the training errors. Another interesting find is that most of the variables were not statistically significant in the regression.
 
 
+>>>>>>> 019a0b0ba2b9c7d7a2aadd8be3e3e0c0404cdaab
 ```{r linear}
 #training and test sets ------------------------------------------
 
@@ -165,23 +169,22 @@ model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu
 
 summary(model1)
 vif(model1)
+<<<<<<< HEAD
+=======
 MSE1 <- mean(model1$residuals^2)
+>>>>>>> 019a0b0ba2b9c7d7a2aadd8be3e3e0c0404cdaab
 
 #other models -------------------------------------------
 model2 <- lm(G3 ~ age + schoolsup + paid + absences + G1 + G2 + class, train)
-summary(model2)
 MSE2 <- mean(model2$residuals^2)
 
 model3 <- lm(G3 ~ G1 + G2 + class, train, na.action = na.omit)
-summary(model3)
 MSE3 <- mean(model3$residuals^2)
 
 model4 <- lm(G3 ~ age + schoolsup + paid + absences + G1 + G2 +I(G1^2) + I(G2^2) + class, train)
-summary(model4)
 MSE4 <- mean(model4$residuals^2)
 
 model5 <- lm(G3 ~ absences + G1 + G2 + I(G1*G2) + class, train)
-summary(model5)
 MSE5 <- mean(model5$residuals^2)
 
 models <- list(model1, model2, model3, model4, model5)
@@ -189,11 +192,6 @@ models <- list(model1, model2, model3, model4, model5)
 #error --------------------------------------------------
 error <- tibble(model_number=c(1,2,3,4,5),
                 MSE_tr=c(MSE1, MSE2, MSE3, MSE4, MSE5))
-
-ggplot(error)+
-    geom_point(aes(x=model_number, y=MSE_tr)) +
-    geom_line(aes(x=model_number, y=MSE_tr)) +
-    labs(x = 'Model Number', y = 'Training Error', title = 'Training Error for the Models')
 
 error <- error %>% 
     add_column(MSE_tst=rep(0, 5))
@@ -222,6 +220,5 @@ error %>%
     geom_point(aes(x=type, y=log10(error), color=type)) +
     geom_line(aes(x=type, y=log10(error), color=type)) + 
     labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
-error
 ```
 
