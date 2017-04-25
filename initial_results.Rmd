@@ -70,12 +70,14 @@ ggplot(data, aes(x = absences, y = G3)) +
 
 ```
 
-#### Mother Education
+#### Parent's Education
+
+A student's final grade increases the higher of level of education that their parents have. The plot for the mother's education is below. We also found that family educational support increases with the parents' education. This is logical, as parents with higher levels of education backgrounds would be more prepared to help their student with homework or other educaiton needs. 
 ```{r medu, echo=F}
 ggplot(data, aes(x = Medu, y = G3)) + 
     geom_jitter(width = 1) + 
     geom_smooth(method = "lm", color = "red") + 
-    labs(x = "Number of Absences", y = "Final Grade", title = "")
+    labs(x = "Mother Education Level", y = "Final Grade", title = "Student's perform better the higher the level of education of their mothers")
 
 ```
 
