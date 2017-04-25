@@ -22,7 +22,8 @@ data <- data[data$G3 != 1,]
 # factors
 data <- mutate(data, Dalc = factor(Dalc),
                Walc = factor(Walc),
-               health = factor(health))
+               health = factor(health),
+               goout = factor(goout))
 
 
 # Schools -----------------------------------------------------------------
@@ -85,13 +86,54 @@ ggplot(data, aes(x = age, fill = Walc)) + geom_bar(position = "fill") + scale_y_
 
 # more drinking == poorer health?
 ggplot(data, aes(x = Walc, fill = health)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
-# yes, clear trend in the 1 health
+ggplot(data, aes(x = Dalc, fill = health)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# not really clear, maybe even opposite of hwat you would've thought
 
 
-#
+# correlation between drinking and going out?
+ggplot(data, aes(x = Walc, fill = goout)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+ggplot(data, aes(x = Dalc, fill = goout)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# yeah, positive relationship that you would've expected
 
 
 
+# Parent Education/Job --------------------------------------------------------
+
+# affect on grades
+ggplot(data, aes(x = Medu, y = G3)) + geom_jitter() + geom_smooth(method = "lm")
+ggplot(data, aes(x = Fedu, y = G3)) + geom_jitter() + geom_smooth(method = "lm")
+# positive relation for both, stteper for Medu
+
+
+# affect on student wanted to persue higher edu?
+ggplot(data, aes(x = Medu, fill = higher)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+ggplot(data, aes(x = Fedu, fill = higher)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# definite rise in interest for increase in Medu
+
+
+# affect on the type of job they hold?
+ggplot(data, aes(x = Medu, fill = Mjob)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+ggplot(data, aes(x = Fedu, fill = Fjob)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# lots of teachers/health at high levels, more at home at low levels of edu
+
+
+# type of job and who is at home
+ggplot(data, aes(x = Fjob, fill = guardian)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# interestingly not always the one who is at home, maybe cohabitation status?
+ggplot(data, aes(x = Fjob, fill = guardian)) + geom_bar(position = "fill") + facet_wrap(~Pstatus)+ scale_y_continuous(labels = percent)
+# if they are apart, mother is far more likely to be guardian, except when father works in health
+
+
+# parent's edu and educational support
+ggplot(data, aes(x = Medu, fill = famsup)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+ggplot(data, aes(x = Fedu, fill = famsup)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# positive relation, as would be expected
+
+
+
+
+
+## stop
 
 
 # Lin Regs ----------------------------------------------------------------
