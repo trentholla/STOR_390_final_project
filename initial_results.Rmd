@@ -12,6 +12,8 @@ library(scales)
 library(car)
 ```
 
+###The Data
+
 The two data sets, one from a Math class and the other from a Portuguese Class, are imported and merged. Observations with a 0 as the final grade (G3) were dropped, as the other variables did not support this outcome. We assume there were other factors that led to the 0 final scores (e.g. the student did not take the assessment). We also removed the observation with the sole final grade of 1 as an outlier (see grouped summary table below). 
 
 ```{r data}
@@ -38,11 +40,17 @@ data <- data[data$G3 != 1,]
 
 # --------------------------------------------------------------------
 
-Does studying improve grades? For the most part, yes. There is a general increasing trend between the 4 study time groups. This variable was also considered significant by the linear model, meaning the trend is statistically significant as well.
-```{r}
-ggplot(data, aes(x = studytime, y = G3, color = class, shape = class))+ geom_jitter() + 
-    geom_smooth(method = "lm") + 
-    labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades')
+### Factors Affecting Final Grades
+
+
+Is our intutition that students who study more perform better correct? Weekly study time is divided into 4 groups: where "1"" is less than 2 hours and "4"" is greater than 10. We see in the plot below that on average, final grades increase as study time increases.
+```{r study}
+data <- mutate(data, studytime = factor(studytime))
+
+ggplot(data, aes(x = studytime, y = G3))+ 
+    geom_boxplot() + 
+    labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades') +
+    theme_classic()
 ```
 
 This graph has the most interesting result, for the healthiest individuals (5) have a lower average grade than every other health level. This could be for many reasons, such as a greater sample size or these students focus on their health more than school. This theory can be tested with another plot of health vs free time, but that graph is inconclusive just by looking at it.
