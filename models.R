@@ -35,7 +35,7 @@ woah2 <- lm(G3 ~ age + schoolsup + paid + absences + G1 + G2 + class, train)
 summary(woah2)
 MSE2 <- mean(woah2$residuals^2)
 
-woah3 <- lm(log(G3) ~ age + schoolsup + paid + absences + G1 + log(G2) + class, train, na.action = na.omit)
+woah3 <- lm(G3 ~ G1 + G2 + class, train, na.action = na.omit)
 summary(woah3)
 MSE3 <- mean(woah3$residuals^2)
 
@@ -47,17 +47,48 @@ woah5 <- lm(G3 ~ absences + G1 + G2 + I(G1*G2) + class, train)
 summary(woah5)
 MSE5 <- mean(woah5$residuals^2)
 
+models <- list(woah, woah2, woah3, woah4, woah5)
 #error
 error <- tibble(degree=c(1,2,3,4,5),
                 MSE_tr=c(MSE1, MSE2, MSE3, MSE4, MSE5))
 
 ggplot(error)+
     geom_point(aes(x=degree, y=MSE_tr)) +
-    geom_line(aes(x=degree, y=MSE_tr))
+    geom_line(aes(x=degree, y=MSE_tr)) +
+    labs(x = 'Model Number', y = 'Training Error', title = 'Training Error for the Models')
 
 #testing
-for (i in 1:5)
 new_grade <- predict(woah3, newdata = test)
 test <- test %>% 
     mutate(grade_pred=exp(new_grade))
 print(test)
+
+error <- error %>% 
+    add_column(MSE_tst=rep(0, 5))
+
+
+for(i in 1:5){
+    
+    # grab the trained model
+    model <- models[[i]]
+    
+    # get the predictions for the test data, compute the residuals
+    
+    test_results <- test %>% 
+        mutate(G3_pred = predict(model, newdata=test)) %>% 
+        mutate(resid_sq = (G3-G3_pred)^2) 
+    
+    # compute the MSE
+    mst_tst <- summarise(test_results, mse_tst = mean(resid_sq))[[1]]
+    
+    error[i, 'MSE_tst'] <- mst_tst
+}
+
+error %>% 
+    rename(tr=MSE_tr, tst=MSE_tst) %>% 
+    gather(key=type, value=error, tr, tst) %>% 
+    ggplot() +
+    geom_point(aes(x=degree, y=log10(error), color=type)) +
+    geom_line(aes(x=degree, y=log10(error), color=type)) + 
+    labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
+error
