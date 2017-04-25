@@ -3,51 +3,106 @@ title: 'EDA: Initial Results'
 author: 'STOR 390: Group 5'
 output: html_document
 ---
-# ----------------------------------------------------
-The two data sets, one from a Math class and the other from a Portugese Class, are imported and merged. Observations with a 0 as the final grade were dropped, as the other variables did not support this outcome, meaning there were other factors beyond this data that influenced the scores.
-```{r}
+
+# --------------------------------------------------------------------
+
+```{r setup, include=F}
 library(tidyverse)
 library(scales)
+library(car)
+```
 
+###The Data
+
+The two data sets, one from a Math class and the other from a Portuguese Class, are imported and merged. Observations with a 0 as the final grade (G3) were dropped, as the other variables did not support this outcome. We assume there were other factors that led to the 0 final scores (e.g. the student did not take the assessment). We also removed the observation with the sole final grade of 1 as an outlier (see grouped summary table below). 
+
+```{r data}
 # Read in data
 math <- read.table("student-mat.csv", sep=";", header=TRUE)
 port <- read.table("student-por.csv", sep=";", header=TRUE)
 
-# merge data to look at general aptitude 
+
+# Merge data to look at general student aptitude rather than separate math/Portuguese scores 
 math <- mutate(math, class = "M")
 port <- mutate(port, class = "P")
 
 data <- rbind(math, port)
 
 
-# remove those with 0 or 1 as G3 score
+# Check final score distributions
 group_by(data, G3) %>%
     summarize(cnt = n())
 
+# Remove observations with 0 or 1 as G3 score
 data <- data[data$G3 != 0,]
 data <- data[data$G3 != 1,]
 ```
 
+```{r factorization, include=F}
+data <- mutate(data, studytime = factor(studytime),
+               health = factor(health))
+```
+
 # --------------------------------------------------------------------
-Does studying improve grades? For the most part, yes. There is a general increasing trend between the 4 study time groups. This variable was also considered significant by the linear model, meaning the trend is statistically significant as well.
-```{r}
-ggplot(data, aes(x = studytime, y = G3, color = class, shape = class))+ geom_jitter() + 
-    geom_smooth(method = "lm") + 
-    labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades')
+
+### Factors Affecting Final Grades
+
+
+Is our intutition that students who study more perform better correct? Weekly study time is divided into 4 groups: where "1"" is less than 2 hours and "4"" is greater than 10. We see in the plot below that on average, final grades increase as study time increases.
+```{r study, echo=F}
+ggplot(data, aes(x = studytime, y = G3))+ 
+    geom_boxplot() + 
+    labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades') +
+    theme_classic()
 ```
 
-This graph has the most interesting result, for the healthiest individuals (5) have a lower average grade than every other health level. This could be for many reasons, such as a greater sample size or these students focus on their health more than school. This theory can be tested with another plot of health vs free time, but that graph is inconclusive just by looking at it.
-```{r}
-ggplot(data, aes(x = health, y = G3, color = class, shape = class)) +  geom_jitter() + geom_smooth(method = "lm") +
-    labs(x = 'Health Status', y = 'Final Grade', title = 'Final Grade Not Impacted by Health')
-
-ggplot(data, aes(x = health, y = freetime, color = class, shape = class)) +  geom_jitter() + geom_vline(xintercept = 0.5:5.5) + geom_hline(yintercept = 0.5:5.5) +
-    labs(x = 'Health Status', y = 'Free Time', title = 'Final Grade Not Impacted by Health')
+The following graph has an interesting result, as the healthiest group of students (5) have one of the lowest average grades (which is somewhat counterintuitive). However, the difference in average grades in by less than 1 point among all health levels. 
+```{r health, echo=F}
+ggplot(data, aes(x = health, y = G3)) +  
+    geom_boxplot() + 
+    labs(x = 'Health Status', y = 'Final Grade', title = 'Final Grade Not Impacted by Health') +
+    theme_classic()
 ```
 
+# --------------------------------------------------------------------
+
+### Other Interesting Relationships
+
+We can see below that a higher percentage of the students at Gabriel Pereira chose that school for it's reputation. It makes sense that Gabriel Pereira would have a better reputation, since it has higher scores in both Math and Portuguese. 
+```{r reason, echo=F}
+ggplot(data, aes(x = school, fill = reason)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) + 
+    scale_x_discrete(labels = c("Gabriel Pereira" , "Mousinho da Silveira")) +
+    labs(x = "School", y = "Percent of Student Population", title = "Higher percentage of students chose Gabriel Pereira for it's reputation") +
+    theme_classic()
+
+ggplot(data, aes(x = school, y = G3, color = class)) + 
+    geom_boxplot() +
+    scale_x_discrete(labels = c("Gabriel Pereira" , "Mousinho da Silveira")) +
+    scale_color_discrete(name = "Type of Class", labels = c("Math", "Portuguese")) +
+    labs(x = "School", y = "Final Grade", title = "Gabriel Pereira students have higher average scores in both math and Portuguese") + 
+    theme_classic()
+
+
+```
+
+<<<<<<< HEAD
 As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. This was accomplished by splitting the data into a training and test set. The models were created using the training set and tested on the test set in order to prevent overfitting. The predicted values given by the models come close to the actual ones, while the test errors are only slightly greater than the training errors. Another interesting find is that most of the variables were not statistically significant in the regression.
 ```{r}
 #training and test sets ------------------------------------------
+=======
+
+
+
+
+# --------------------------------------------------------------------
+
+### Preliminary Models
+
+As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. The predicted values come close to the actual ones. (Calculate test error tomorrow).
+```{r linear}
+>>>>>>> fa048a92bbc5ab01f420516e354c93d7a818375e
 n <- dim(data)[1]
 
 # number of observations that go in the training st

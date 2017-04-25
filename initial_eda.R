@@ -203,7 +203,6 @@ ggplot(data, aes(x = paid, y = G3)) + geom_boxplot()
 
 
 # Original Lin Regs ----------------------------------------------------------------
->>>>>>> cd597dd7c88aa25aaa32056b6c59714bd95ab34f
 
 # weekly study time
 ggplot(data, aes(x = studytime, y = G3, color = class, shape = class))+ geom_jitter() + 
@@ -218,12 +217,12 @@ ggplot(data, aes(x = Dalc, y = G3, color = class, shape = class)) +  geom_jitter
     labs(x = 'Workday Alcohol Consumption', y = 'Final Grade', 
          title = 'Weekday Drinking Harms Final Grades')
 
-<<<<<<< HEAD
+
 # weekend alcohol consumption
 ggplot(data, aes(x = Walc, y = G3, color = class, shape = class)) +  geom_jitter() + geom_smooth(method = "lm") +
     labs(x = 'Weekend Alcohol Consumption', y = 'Final Grade', 
          title = 'Weekend Drinking Harms Final Grades')
-=======
+
 lin_reg2 <- lm(G3 ~ Dalc, data)
 summary(lin_reg2)
 
@@ -231,18 +230,17 @@ summary(lin_reg2)
 ggplot(data, aes(x = Walc, y = G3)) +  geom_jitter() + geom_smooth(method = "lm") +
     labs(x = 'Weekday Alcohol Consumption', y = 'Final Grade', 
          title = 'Weekday Drinking Harms Final Grades')
->>>>>>> cd597dd7c88aa25aaa32056b6c59714bd95ab34f
+
 
 lin_reg3 <- lm(G3 ~ Walc, data)
 summary(lin_reg3)
 
 # health
-<<<<<<< HEAD
 ggplot(data, aes(x = health, y = G3, color = class, shape = class)) +  geom_jitter() + geom_smooth(method = "lm") +
     labs(x = 'Health Status', y = 'Final Grade', title = 'Final Grade Not Impacted by Health')
-=======
+
 ggplot(data, aes(x = health, y = G3)) +  geom_jitter() + geom_smooth(method = "lm")
 
 lin_reg4 <- lm(G3 ~ health, data)
 summary(lin_reg4)
->>>>>>> cd597dd7c88aa25aaa32056b6c59714bd95ab34f
+
