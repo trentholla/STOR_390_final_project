@@ -56,6 +56,10 @@ ggplot(data, aes(x = sex, fill = Walc)) + geom_bar(position = "fill") + scale_y_
 ggplot(data, aes(x = sex, fill = romantic)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
 # 38% yes in males, 28% females
 
+# affect on higher education?
+ggplot(data, aes(x = sex, fill = higher)) + geom_bar(position = "fill") + scale_y_continuous(labels = percent)
+# 93 F to 89 male
+
 
 # age affect on grades?
 ggplot(data, aes(x = age, y = G3)) + geom_jitter() +geom_smooth(method = "lm")
@@ -68,10 +72,7 @@ ggplot(data, aes(x = age, fill = Walc)) + geom_bar(position = "fill") + scale_y_
 # drinking for all groups goes up on the weekend, kinda a peak at age 17
 
 
-# affect on higher education?
-group_by(data, sex, higher) %>%
-    summarize(count = n())
-# 93 F to 89 male
+
 
 
 
