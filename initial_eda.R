@@ -68,14 +68,18 @@ group_by(data, sex, higher) %>%
 
 # weekly study time
 ggplot(data, aes(x = studytime, y = G3))+ geom_jitter() + geom_smooth(method = "lm")
-
+lin_reg1 <- lm(G3 ~ studytime, data)
+summary(lin_reg1)
 # workday alcohol consumption
 ggplot(data, aes(x = Dalc, y = G3)) +  geom_jitter() + geom_smooth(method = "lm")
-
+lin_reg2 <- lm(G3 ~ Dalc, data)
+summary(lin_reg2)
 # weekday alcohol consumption
 ggplot(data, aes(x = Walc, y = G3)) +  geom_jitter() + geom_smooth(method = "lm")
-
+lin_reg3 <- lm(G3 ~ Walc, data)
+summary(lin_reg3)
 # health
 ggplot(data, aes(x = health, y = G3)) +  geom_jitter() + geom_smooth(method = "lm")
-
+lin_reg4 <- lm(G3 ~ health, data)
+summary(lin_reg4)
 
