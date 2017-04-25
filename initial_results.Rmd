@@ -196,8 +196,8 @@ error %>%
     rename(tr=MSE_tr, tst=MSE_tst) %>% 
     gather(key=type, value=error, tr, tst) %>% 
     ggplot() +
-    geom_point(aes(x=degree, y=log10(error), color=type)) +
-    geom_line(aes(x=degree, y=log10(error), color=type)) + 
+    geom_point(aes(x=type, y=log10(error), color=type)) +
+    geom_line(aes(x=type, y=log10(error), color=type)) + 
     labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
 error
 ```
