@@ -116,14 +116,12 @@ ggplot(data, aes(x = sex, fill = Walc)) +
 
 ### Preliminary Models
 
-<<<<<<< HEAD
 #As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. The predicted values come close to the actual ones. (Calculate test error tomorrow).
 =======
 
 As for the initial model, a simple linear regression has a high R^2 value and is a good starting place for modelling. This was accomplished by splitting the data into a training and test set. The models were created using the training set and tested on the test set in order to prevent overfitting. The predicted values given by the models come close to the actual ones, while the test errors are only slightly greater than the training errors. Another interesting find is that most of the variables were not statistically significant in the regression.
 
 
->>>>>>> 019a0b0ba2b9c7d7a2aadd8be3e3e0c0404cdaab
 ```{r linear}
 #training and test sets ------------------------------------------
 
@@ -146,10 +144,8 @@ model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu
 
 summary(model1)
 vif(model1)
-<<<<<<< HEAD
-=======
+
 MSE1 <- mean(model1$residuals^2)
->>>>>>> 019a0b0ba2b9c7d7a2aadd8be3e3e0c0404cdaab
 
 #other models -------------------------------------------
 model2 <- lm(G3 ~ age + schoolsup + paid + absences + G1 + G2 + class, train)
