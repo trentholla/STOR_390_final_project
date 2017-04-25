@@ -171,14 +171,31 @@ ggplot(data, aes(x = traveltime, y = absences)) + geom_jitter()
 # nope
 
 
+# Extra Help --------------------------------------------------------------
+
+# internet at home on grade
+ggplot(data, aes(x = internet, y = G3)) + geom_boxplot() 
+# access to internet == ~1 pt higher score
+
+
+# extra school support on grade 
+ggplot(data, aes(x = schoolsup, y = G3)) + geom_boxplot()
+# maybe they only give extra support to students who are struggling to begin with?
+ggplot(data, aes(x = schoolsup, y = G1)) + geom_boxplot()
+# not too much different in scores at first examination
+
+
+# nursery school attendence on grade
+ggplot(data, aes(x = nursery, y = G3)) + geom_boxplot()
+# nursery school == ~1 pt higher
+
+
+# extra paid classes on grade
+ggplot(data, aes(x = paid, y = G3)) + geom_boxplot()
+# actually lower for extra paid classes, too much on their plates?
+
+
 ## stop
-
-
-
-
-
-
-
 
 
 
