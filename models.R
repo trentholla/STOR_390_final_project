@@ -2,8 +2,7 @@ library(tidyverse)
 library(car)
 
 #training and test sets ------------------------------------------------
-# there are n observations
-n <- dim(hour)[1]
+n <- dim(data)[1]
 
 # number of observations that go in the training st
 n_tr <- floor(n * .8)
@@ -13,8 +12,8 @@ n_tr <- floor(n * .8)
 tr_indices <- sample(x=1:n, size=n_tr, replace=FALSE)
 
 # break the data into a non-overlapping train and test set
-train <- hour[tr_indices, ]
-test <- hour[-tr_indices, ]
+train <- data[tr_indices, ]
+test <- data[-tr_indices, ]
 
 
 #comprehensive linear model ----------------------------- 
@@ -85,3 +84,65 @@ error %>%
     geom_line(aes(x=degree, y=log10(error), color=type)) + 
     labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
 error
+
+
+
+# Variable Selection -----------------------------------------------------------
+
+# stepwise selection forward
+null1 <- lm(G3 ~ 1,data = train)
+full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
+                Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
+                famsup + paid + activities + nursery + higher + internet + romantic + famrel + 
+                freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class,data=train)
+model6 <- step(null1, scope = list(lower=null1, upper=full1), direction="forward")
+MSE6 <- mean(model6$residuals^2)
+
+#stepwise selection backward
+null1 <- lm(G3 ~ 1,data = train)
+full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
+                Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
+                famsup + paid + activities + nursery + higher + internet + romantic + famrel + 
+                freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class,data=train)
+model7 <- step(null1, scope = list(lower=null1, upper=fill1), direction="backward")
+MSE7 <- mean(model7$residuals^2)
+
+# LASSO
+library(glmnet)
+train1 <- mutate(data, Dalc = factor(Dalc),
+                 Walc = factor(Walc),
+                 health = factor(health),
+                 studytime = factor(studytime),
+                 famsize = factor(famsize),
+                 Mjob = factor(Mjob),
+                 Fjob = factor(Fjob),
+                 reason = factor(reason),
+                 guardian = factor(guardian)
+)
+myData <- train1[train1$G3 > 4,]
+myData <- myData[myData$G3 < 20,]
+x <- as.matrix(myData[,-33]) 
+y <- as.double(as.matrix(myData[, 33]))
+table(myData$G3)
+table(y)
+
+# Fitting the model (Lasso: Alpha = 1)
+set.seed(456)
+model8 <- cv.glmnet(x, y, family='multinomial', alpha=1)
+
+
+
+# Random Forest -----------------------------------------------------------
+
+library(randomForest)
+data[colnames(data)] <-  lapply(data[colnames(data)], factor)
+
+model <- randomForest(G3 ~ . - G1 - G2, data = train, ntree = 100, mtry = 30)
+model
+
+
+
+
+
+
+
