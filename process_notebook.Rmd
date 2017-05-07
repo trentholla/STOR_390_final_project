@@ -4,11 +4,20 @@ author: 'STOR 390: Group 5'
 output: html_document
 ---
 
-#### Abstract
+### Abstract
+Probably the last thing we are going to write. Need to know the final models we chose. 
 
 
-#### Overview
-Include info from the paper here.
+### Overview
+
+In a 2008 paper [^1], Cortez and Silva predicted the success of Portuguese secondary students using past grades, demographic, social, and school related data. They found that the first and second period grades were essential for very accurate predictions (though there were other relevent variables). In most cases, a Random Forest model was the best choice, followed by Decision Trees. They found that Neurual Networks and Support Vector Machines performed the worst, but this may be due to the many unrelated input variables. 
+
+However, it would be beneficial if teachers knew at the beginning of each year which students would need additional help to pass. Our objective was to create a model of student performance that did not rely on previous assessments. We also tried some automatic variable selection methods since Cortez and Silva found that only a few of the input variables seemed to be relevant. 
+
+TODO: If we end up using a tree method, mention here that the paper found them more useful. 
+
+[^1]: [Using Data Mining to Predict Secondary School Student Performance, P. Cortez and A. Silva](http://www3.dsi.uminho.pt/pcortez/student.pdf) 
+
 
 ```{r setup, include=FALSE}
 
@@ -18,12 +27,12 @@ library(car)
 
 ```
 
-#### Exploratory Data Analysis
+### Exploratory Data Analysis
 This will mostly be what we already turned in
 
 
-#### Modeling Student Performance
+### Modeling Student Performance
 
 
-#### Conclusions
+### Conclusions
 
