@@ -89,6 +89,12 @@ error
 
 # Variable Selection -----------------------------------------------------------
 
+cols <- c("school", "sex", "age", "address", "famsize", "Pstatus", "Medu", "Fedu", "Mjob",
+          "Fjob", "reason", "guardian", "traveltime", "studytime", "failures", "schoolsup", 
+          "famsup", "paid", "activities", "nursery", "higher", "internet", "romantic", "famrel", 
+          "freetime", "goout", "Dalc", "Walc", "health", "class")
+data[, cols] <-  lapply(data[, cols], factor)
+
 # stepwise selection forward
 null1 <- lm(G3 ~ 1,data = train)
 full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
@@ -104,7 +110,7 @@ full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu 
                 Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
                 famsup + paid + activities + nursery + higher + internet + romantic + famrel + 
                 freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class,data=train)
-model7 <- step(null1, scope = list(lower=null1, upper=fill1), direction="backward")
+model7 <- step(full1, direction="backward")
 MSE7 <- mean(model7$residuals^2)
 
 # LASSO
@@ -135,7 +141,9 @@ model8 <- cv.glmnet(x, y, family='multinomial', alpha=1)
 # Random Forest -----------------------------------------------------------
 
 library(randomForest)
-data[colnames(data)] <-  lapply(data[colnames(data)], factor)
+
+
+
 
 model <- randomForest(G3 ~ . - G1 - G2, data = train, ntree = 100, mtry = 30)
 model
