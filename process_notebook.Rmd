@@ -111,6 +111,77 @@ ggplot(data, aes(x = health, y = G3)) +
 
 ### Modeling Student Performance
 
+The first models we tried were simple linear regressions of the final grade to the other variables in the data set. Before this occured, we split the data into training and test data so that we can test our predictive model and avoid overfitting. The first model included every variable in the data set. This was more of a control model, for it does not reveal anything substantial about the data other than that all factors affect a student's final grade. The second model included all variables that were deemed significant at a 90% confidence interval, in order to narrow down important variables. The third model removed more variables that were no longer significant in the second model. The fourth model added sqaured values of the two test grades, G1 and G2. Model five added an interaction variable between the two test grades.
+```{r}
+#training and test sets ------------------------------------------
+
+n <- dim(data)[1]
+
+# number of observations that go in the training st
+n_tr <- floor(n * .8)
+
+
+# randomly select n_tr numbers, without replacement, from 1...n
+tr_indices <- sample(x=1:n, size=n_tr, replace=FALSE)
+
+# break the data into a non-overlapping train and test set
+train <- data[tr_indices, ]
+test <- data[-tr_indices, ]
+
+
+#comprehensive linear model ----------------------------------- 
+model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + nursery + higher + internet + romantic + famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class, train)
+
+MSE1 <- mean(model1$residuals^2)
+
+#other models -------------------------------------------
+model2 <- lm(G3 ~ age + traveltime + schoolsup + paid + goout + Dalc + absences + G1 + G2 + class, train)
+MSE2 <- mean(model2$residuals^2)
+
+model3 <- lm(G3 ~ paid + goout + Dalc + G1 + G2 + class, train)
+MSE3 <- mean(model3$residuals^2)
+
+model4 <- lm(G3 ~ paid + goout + Dalc + absences + G1 + G2 +I(G1^2) + I(G2^2) + class, train)
+MSE4 <- mean(model4$residuals^2)
+
+model5 <- lm(G3 ~ paid + goout + Dalc + absences + G1 + G2 + I(G1*G2) + class, train)
+MSE5 <- mean(model5$residuals^2)
+
+models <- list(model1, model2, model3, model4, model5)
+
+#error --------------------------------------------------
+error <- tibble(model_number=c(1,2,3,4,5),
+                MSE_tr=c(MSE1, MSE2, MSE3, MSE4, MSE5))
+
+error <- error %>% 
+    add_column(MSE_tst=rep(0, 5))
+
+for(i in 1:5){
+    
+    # grab the trained model
+    model <- models[[i]]
+    
+    # get the predictions for the test data, compute the residuals
+    
+    test_results <- test %>% 
+        mutate(G3_pred = predict(model, newdata=test)) %>% 
+        mutate(resid_sq = (G3-G3_pred)^2) 
+    
+    # compute the MSE
+    mst_tst <- summarise(test_results, mse_tst = mean(resid_sq))[[1]]
+    
+    error[i, 'MSE_tst'] <- mst_tst
+}
+
+error %>% 
+    rename(tr=MSE_tr, tst=MSE_tst) %>% 
+    gather(key=type, value=error, tr, tst) %>% 
+    ggplot() +
+    geom_point(aes(x=type, y=log10(error), color=type)) +
+    geom_line(aes(x=type, y=log10(error), color=type)) + 
+    labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
+```
+```
 
 
 
