@@ -28,10 +28,90 @@ library(car)
 ```
 
 ### Exploratory Data Analysis
-This will mostly be what we already turned in
+
+The two data sets, one from a Math class and the other from a Portuguese Class, were imported and merged. Observations with a 0 as the final grade (G3) were dropped, as the other variables did not support this outcome. We assume there were other factors that led to the 0 final scores (e.g. the student did not take the assessment). We also removed the observation with the sole final grade of 1 as an outlier (see grouped summary table below). 
+
+```{r data, echo=F}
+# Read in data
+math <- read.table("student-mat.csv", sep=";", header=TRUE)
+port <- read.table("student-por.csv", sep=";", header=TRUE)
+
+
+# Merge data to look at general student aptitude rather than separate math/Portuguese scores 
+math <- mutate(math, class = "M")
+port <- mutate(port, class = "P")
+
+data <- rbind(math, port)
+
+
+# Check final score distributions
+group_by(data, G3) %>%
+    summarize(cnt = n())
+
+# Remove observations with 0 or 1 as G3 score
+data <- data[data$G3 != 0,]
+data <- data[data$G3 != 1,]
+```
+
+
+```{r factorization, include=F}
+data <- mutate(data, Dalc = factor(Dalc),
+               Walc = factor(Walc),
+               health = factor(health),
+               studytime = factor(studytime))
+```
+
+#### Factors Affecting Final Grades
+
+##### Studying
+
+Is our intutition that students who study more perform better correct? Weekly study time is divided into 4 groups: where "1"" is less than 2 hours and "4"" is greater than 10. We see in the plot below that on average, final grades increase as study time increases.
+```{r study, echo=F}
+ggplot(data, aes(x = studytime, y = G3))+ 
+    geom_boxplot() + 
+    labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades') +
+    theme_classic()
+```
+
+##### Absences
+
+As expected, the more time a student is absent during the year, the lower their final grade is. However, we do not know if the lower grade is specifically because they missed class and the infomation taught that day. It's possbile that the reason they are absent (e.g. health issues) is actually the causing the lower grade.  
+```{r absences, echo=F}
+ggplot(data, aes(x = absences, y = G3)) + 
+    geom_jitter(width = 1) + 
+    geom_smooth(method = "lm", color = "red", fill = NA) +
+    labs(x = "Number of Absences", y = "Final Grade", title = "Absences lead to lower final grades") +
+    theme_minimal()
+
+```
+
+##### Parent's Education
+
+A student's final grade increases the higher of level of education that their parents have. The plot for the mother's education is below. We also found that family educational support increases with the parents' education. This is logical, as parents with higher levels of education backgrounds would be more prepared to help their student with homework or other education needs. 
+```{r medu, echo=F}
+ggplot(data, aes(x = Medu, y = G3)) + 
+    geom_jitter(width = 1) + 
+    geom_smooth(method = "lm", color = "red", fill = NA) + 
+    labs(x = "Mother Education Level", y = "Final Grade", title = "Student's perform better the higher the level of education of their mothers") +
+    theme_minimal()
+
+```
+
+##### Health
+
+The following graph has an interesting result, as the healthiest group of students (5) have one of the lowest average grades (which is somewhat counterintuitive). However, the difference in average grades in by less than 1 point among all health levels. 
+```{r health, echo=F}
+ggplot(data, aes(x = health, y = G3)) +  
+    geom_boxplot() + 
+    labs(x = 'Health Status', y = 'Final Grade', title = 'Final Grade Not Impacted by Health') +
+    theme_classic()
+```
+
 
 
 ### Modeling Student Performance
+
+
 
 
 ### Conclusions
