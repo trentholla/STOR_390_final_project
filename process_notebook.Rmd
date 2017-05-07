@@ -111,15 +111,13 @@ ggplot(data, aes(x = health, y = G3)) +
 
 ### Modeling Student Performance
 
-The first models we tried were simple linear regressions of the final grade to the other variables in the data set. Before this occured, we split the data into training and test data so that we can test our predictive model and avoid overfitting. The first model included every variable in the data set. This was more of a control model, for it does not reveal anything substantial about the data other than that all factors affect a student's final grade. The second model included all variables that were deemed significant at a 90% confidence interval, in order to narrow down important variables. The third model removed more variables that were no longer significant in the second model. Since G1 and G2 are the most significant variables, they were further tested with squared and interaction terms. The fourth model added sqaured values of the two test grades, G1 and G2. Model five added an interaction variable between the two test grades.
-```{r}
-#training and test sets ------------------------------------------
+For our model fitting, we randomly selected 80% of the data to serve as our training set. 
+```{r train}
 
 n <- dim(data)[1]
 
 # number of observations that go in the training st
 n_tr <- floor(n * .8)
-
 
 # randomly select n_tr numbers, without replacement, from 1...n
 tr_indices <- sample(x=1:n, size=n_tr, replace=FALSE)
@@ -128,8 +126,13 @@ tr_indices <- sample(x=1:n, size=n_tr, replace=FALSE)
 train <- data[tr_indices, ]
 test <- data[-tr_indices, ]
 
+```
 
-#comprehensive linear model ----------------------------------- 
+
+The first models we tried were simple linear regressions of the final grade to the other variables in the data set. Before this occured, we split the data into training and test data so that we can test our predictive model and avoid overfitting. The first model included every variable in the data set. This was more of a control model, for it does not reveal anything substantial about the data other than that all factors affect a student's final grade. The second model included all variables that were deemed significant at a 90% confidence interval, in order to narrow down important variables. The third model removed more variables that were no longer significant in the second model. Since G1 and G2 are the most significant variables, they were further tested with squared and interaction terms. The fourth model added sqaured values of the two test grades, G1 and G2. Model five added an interaction variable between the two test grades.
+```{r}
+
+# comprehensive linear model ----------------------------------- 
 model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + nursery + higher + internet + romantic + famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class, train)
 
 MSE1 <- mean(model1$residuals^2)
@@ -204,7 +207,7 @@ error %>%
 
 print(error)
 ```
-```
+
 
 
 
