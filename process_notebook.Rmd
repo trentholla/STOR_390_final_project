@@ -4,8 +4,26 @@ author: 'STOR 390: Group 5'
 output: html_document
 ---
 
+#### Abstract
+
+
+#### Overview
+Include info from the paper here.
+
 ```{r setup, include=FALSE}
+
+library(tidyverse)
+library(scales)
+library(car)
 
 ```
 
+#### Exploratory Data Analysis
+This will mostly be what we already turned in
+
+
+#### Modeling Student Performance
+
+
+#### Conclusions
 
