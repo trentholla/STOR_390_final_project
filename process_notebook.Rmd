@@ -111,15 +111,13 @@ ggplot(data, aes(x = health, y = G3)) +
 
 ### Modeling Student Performance
 
-The first models we tried were simple linear regressions of the final grade to the other variables in the data set. Before this occured, we split the data into training and test data so that we can test our predictive model and avoid overfitting. The first model included every variable in the data set. This was more of a control model, for it does not reveal anything substantial about the data other than that all factors affect a student's final grade. The second model included all variables that were deemed significant at a 90% confidence interval, in order to narrow down important variables. The third model removed more variables that were no longer significant in the second model. Since G1 and G2 are the most significant variables, they were further tested with squared and interaction terms in the fourth model. For model five, we removed the two test grades from model three to see if we can accurately predict a student's final grade without knowing their test grades.
-```{r}
-#training and test sets ------------------------------------------
+To fit our models, we randomly selected 80% of the data to serve as our training set. 
 
+```{r train}
 n <- dim(data)[1]
 
 # number of observations that go in the training st
 n_tr <- floor(n * .8)
-
 
 # randomly select n_tr numbers, without replacement, from 1...n
 tr_indices <- sample(x=1:n, size=n_tr, replace=FALSE)
@@ -128,13 +126,21 @@ tr_indices <- sample(x=1:n, size=n_tr, replace=FALSE)
 train <- data[tr_indices, ]
 test <- data[-tr_indices, ]
 
+```
 
-#comprehensive linear model ----------------------------------- 
+
+#### Manually Created Linear Models
+
+We started building linear models by hand based on our original EDA. To start, we used a model that contains all avaliable input variables (similar to the paper that originally used this dataset). Our second model included all variables that were deemed significant at a 90% confidence interval, in order to narrow down important variables. We already knew from Cortex and Silva, that G1 and G2 are the most significant variables. So we decided to add squared and interaction terms involving them in the fourth model. 
+For model five, we removed the two test grades from model three to see if we can accurately predict a student's final grade without knowing their test grades. As mentioned before, this would allow schools more time to give extra help to the students who needed it most. 
+```{r manual}
+
+# comprehensive linear model ----------------------------------- 
 model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + nursery + higher + internet + romantic + famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class, train)
 
 MSE1 <- mean(model1$residuals^2)
 
-#other simple linear models -------------------------------------------
+# other simple linear models -------------------------------------------
 model2 <- lm(G3 ~ age + traveltime + schoolsup + paid + goout + Dalc + absences + G1 + G2 + class, train)
 MSE2 <- mean(model2$residuals^2)
 
@@ -147,29 +153,39 @@ MSE4 <- mean(model4$residuals^2)
 model5 <- lm(G3 ~ paid + goout + Dalc + absences + class, train)
 MSE5 <- mean(model5$residuals^2)
 
-#stepwise models -------------------------------------------------
+```
 
-# stepwise selection forward
+#### Automatic Variable Selection
+
+Additionally, we wanted to see what linear models would be created using automatic feature selection. We started with stepwise selection: forward and backward. 
+
+```{r stepwise}
+# forward stepwise selection 
 null1 <- lm(G3 ~ 1,data = train)
 full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
                 Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
                 famsup + paid + activities + nursery + higher + internet + romantic +
                 famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
                 class,data=train)
-model6 <- step(null1, scope = list(lower=null1, upper=full1), direction="forward")
+model6 <- step(null1, scope = list(lower=null1, upper=full1), direction="forward", trace = 0)
 MSE6 <- mean(model6$residuals^2)
 
-#stepwise selection backward
+# backward stepwise selection 
 null1 <- lm(G3 ~ 1,data = train)
 full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
                 Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
                 famsup + paid + activities + nursery + higher + internet + romantic +
                 famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
                 class,data=train)
-model7 <- step(full1, direction="backward")
+model7 <- step(full1, direction="backward", trace = 0)
 MSE7 <- mean(model7$residuals^2)
 
+```
 
+
+#### Error in Linear Models
+
+```{r errors}
 #error --------------------------------------------------
 models <- list(model1, model2, model3, model4, model5, model6, model7)
 
@@ -181,7 +197,6 @@ error <- error %>%
 
 for(i in 1:7){
     
-    # grab the trained model
     model <- models[[i]]
     
     # get the predictions for the test data, compute the residuals
@@ -205,7 +220,6 @@ error %>%
     labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
 
 print(error)
-```
 ```
 
 

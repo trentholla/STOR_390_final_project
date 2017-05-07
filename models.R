@@ -132,7 +132,7 @@ model8 <- glmnet(x, y, family='gaussian', alpha=1)
 
 library(randomForest)
 
-model <- randomForest(G3 ~ .- G1 - G2, data = train, ntree = 500)
+model <- randomForest(G3 ~ .- G1 - G2, data = train)
 model
 
 
