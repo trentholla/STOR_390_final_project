@@ -111,7 +111,7 @@ ggplot(data, aes(x = health, y = G3)) +
 
 ### Modeling Student Performance
 
-The first models we tried were simple linear regressions of the final grade to the other variables in the data set. Before this occured, we split the data into training and test data so that we can test our predictive model and avoid overfitting. The first model included every variable in the data set. This was more of a control model, for it does not reveal anything substantial about the data other than that all factors affect a student's final grade. The second model included all variables that were deemed significant at a 90% confidence interval, in order to narrow down important variables. The third model removed more variables that were no longer significant in the second model. The fourth model added sqaured values of the two test grades, G1 and G2. Model five added an interaction variable between the two test grades.
+The first models we tried were simple linear regressions of the final grade to the other variables in the data set. Before this occured, we split the data into training and test data so that we can test our predictive model and avoid overfitting. The first model included every variable in the data set. This was more of a control model, for it does not reveal anything substantial about the data other than that all factors affect a student's final grade. The second model included all variables that were deemed significant at a 90% confidence interval, in order to narrow down important variables. The third model removed more variables that were no longer significant in the second model. Since G1 and G2 are the most significant variables, they were further tested with squared and interaction terms. The fourth model added sqaured values of the two test grades, G1 and G2. Model five added an interaction variable between the two test grades.
 ```{r}
 #training and test sets ------------------------------------------
 
@@ -134,11 +134,11 @@ model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu
 
 MSE1 <- mean(model1$residuals^2)
 
-#other models -------------------------------------------
+#other simple linear models -------------------------------------------
 model2 <- lm(G3 ~ age + traveltime + schoolsup + paid + goout + Dalc + absences + G1 + G2 + class, train)
 MSE2 <- mean(model2$residuals^2)
 
-model3 <- lm(G3 ~ paid + goout + Dalc + G1 + G2 + class, train)
+model3 <- lm(G3 ~ paid + goout + Dalc + absences+ G1 + G2 + class, train)
 MSE3 <- mean(model3$residuals^2)
 
 model4 <- lm(G3 ~ paid + goout + Dalc + absences + G1 + G2 +I(G1^2) + I(G2^2) + class, train)
@@ -147,16 +147,37 @@ MSE4 <- mean(model4$residuals^2)
 model5 <- lm(G3 ~ paid + goout + Dalc + absences + G1 + G2 + I(G1*G2) + class, train)
 MSE5 <- mean(model5$residuals^2)
 
-models <- list(model1, model2, model3, model4, model5)
+#stepwise models -------------------------------------------------
+
+# stepwise selection forward
+null1 <- lm(G3 ~ 1,data = train)
+full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
+                Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
+                famsup + paid + activities + nursery + higher + internet + romantic + famrel + 
+                freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class,data=train)
+model6 <- step(null1, scope = list(lower=null1, upper=full1), direction="forward")
+MSE6 <- mean(model6$residuals^2)
+
+#stepwise selection backward
+null1 <- lm(G3 ~ 1,data = train)
+full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
+                Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
+                famsup + paid + activities + nursery + higher + internet + romantic + famrel + 
+                freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class,data=train)
+model7 <- step(full1, direction="backward")
+MSE7 <- mean(model7$residuals^2)
+
 
 #error --------------------------------------------------
-error <- tibble(model_number=c(1,2,3,4,5),
-                MSE_tr=c(MSE1, MSE2, MSE3, MSE4, MSE5))
+models <- list(model1, model2, model3, model4, model5, model6, model7)
+
+error <- tibble(model_number=c(1,2,3,4,5,6,7),
+                MSE_tr=c(MSE1, MSE2, MSE3, MSE4, MSE5, MSE6, MSE7))
 
 error <- error %>% 
-    add_column(MSE_tst=rep(0, 5))
+    add_column(MSE_tst=rep(0, 7))
 
-for(i in 1:5){
+for(i in 1:7){
     
     # grab the trained model
     model <- models[[i]]
@@ -180,6 +201,8 @@ error %>%
     geom_point(aes(x=type, y=log10(error), color=type)) +
     geom_line(aes(x=type, y=log10(error), color=type)) + 
     labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
+
+print(error)
 ```
 ```
 
