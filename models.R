@@ -115,35 +115,22 @@ MSE7 <- mean(model7$residuals^2)
 
 # LASSO
 library(glmnet)
-train1 <- mutate(data, Dalc = factor(Dalc),
-                 Walc = factor(Walc),
-                 health = factor(health),
-                 studytime = factor(studytime),
-                 famsize = factor(famsize),
-                 Mjob = factor(Mjob),
-                 Fjob = factor(Fjob),
-                 reason = factor(reason),
-                 guardian = factor(guardian)
-)
-myData <- train1[train1$G3 > 4,]
-myData <- myData[myData$G3 < 20,]
-x <- as.matrix(myData[,-33]) 
-y <- as.double(as.matrix(myData[, 33]))
-table(myData$G3)
-table(y)
+
+train <- train[train$G3 > 4 & train$G3 < 20,]
+
+x <- as.matrix(select(train, -(G1:G3)))
+y <- as.matrix(select(train, G3))
+## the problem is here. when you convert to a matrix all columns become chr and you can't do lasso on that
 
 # Fitting the model (Lasso: Alpha = 1)
 set.seed(456)
-model8 <- cv.glmnet(x, y, family='multinomial', alpha=1)
+model8 <- glmnet(x, y, family='gaussian', alpha=1)
 
 
 
 # Random Forest -----------------------------------------------------------
 
 library(randomForest)
-
-
-
 
 model <- randomForest(G3 ~ . - G1 - G2, data = train, ntree = 100, mtry = 30)
 model
