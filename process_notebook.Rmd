@@ -219,7 +219,8 @@ error %>%
     geom_line(aes(x=type, y=log10(error), color=type)) + 
     labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
 
-print(error)
+error
+
 ```
 
 
