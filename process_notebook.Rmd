@@ -5,7 +5,8 @@ output: html_document
 ---
 
 ### Abstract
-Probably the last thing we are going to write. Need to know the final models we chose. 
+
+ 
 
 
 ### Overview
@@ -13,8 +14,6 @@ Probably the last thing we are going to write. Need to know the final models we 
 In a 2008 paper [^1], Cortez and Silva predicted the success of Portuguese secondary students using past grades, demographic, social, and school related data. They found that the first and second period grades were essential for very accurate predictions (though there were other relevent variables). In most cases, a Random Forest model was the best choice, followed by Decision Trees. They found that Neurual Networks and Support Vector Machines performed the worst, but this may be due to the many unrelated input variables. 
 
 However, it would be beneficial if teachers knew at the beginning of each year which students would need additional help to pass. Our objective was to create a model of student performance that did not rely on previous assessments. We also tried some automatic variable selection methods since Cortez and Silva found that only a few of the input variables seemed to be relevant. 
-
-TODO: If we end up using a tree method, mention here that the paper found them more useful. 
 
 [^1]: [Using Data Mining to Predict Secondary School Student Performance, P. Cortez and A. Silva](http://www3.dsi.uminho.pt/pcortez/student.pdf) 
 
@@ -133,6 +132,7 @@ test <- data[-tr_indices, ]
 
 We started building linear models by hand based on our original EDA. To start, we used a model that contains all avaliable input variables (similar to the paper that originally used this dataset). Our second model included all variables that were deemed significant at a 90% confidence interval, in order to narrow down important variables. We already knew from Cortex and Silva, that G1 and G2 are the most significant variables. So we decided to add squared and interaction terms involving them in the fourth model. 
 For model five, we removed the two test grades from model three to see if we can accurately predict a student's final grade without knowing their test grades. As mentioned before, this would allow schools more time to give extra help to the students who needed it most. 
+
 ```{r manual}
 
 # comprehensive linear model ----------------------------------- 
@@ -157,7 +157,9 @@ MSE5 <- mean(model5$residuals^2)
 
 #### Automatic Variable Selection
 
-Additionally, we wanted to see what linear models would be created using automatic feature selection. We started with stepwise selection: forward and backward. 
+Additionally, we wanted to see what linear models would be created using automatic feature selection. We started with stepwise selection: forward and backward. We had also intended on using LASSO, but the `glmnet` package requires a matrix of input variables as an argument for LASSO. Many of our input variables are factors and so the matrix would be of type chr--which LASSO cannot run on. We considered separating each of the factors into several columns for each level and using binary variables, but were concerned about it not being comparable to our other models. 
+
+We allowed the first and second period grades to be considered because otherwise our MSE would be greater than 5. 
 
 ```{r stepwise}
 # forward stepwise selection 
@@ -168,6 +170,7 @@ full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu 
                 famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
                 class,data=train)
 model6 <- step(null1, scope = list(lower=null1, upper=full1), direction="forward", trace = 0)
+model6
 MSE6 <- mean(model6$residuals^2)
 
 # backward stepwise selection 
@@ -178,6 +181,7 @@ full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu 
                 famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
                 class,data=train)
 model7 <- step(full1, direction="backward", trace = 0)
+model7
 MSE7 <- mean(model7$residuals^2)
 
 ```
@@ -185,7 +189,9 @@ MSE7 <- mean(model7$residuals^2)
 
 #### Error in Linear Models
 
-```{r errors}
+We computed the training and test errors for each of thee 7 models. The stepwise models had the lowest training error, but their higher test errors might be a result of overfitting. 
+
+```{r errors, include=F}
 #error --------------------------------------------------
 models <- list(model1, model2, model3, model4, model5, model6, model7)
 
@@ -211,19 +217,19 @@ for(i in 1:7){
     error[i, 'MSE_tst'] <- mst_tst
 }
 
-error %>% 
-    rename(tr=MSE_tr, tst=MSE_tst) %>% 
-    gather(key=type, value=error, tr, tst) %>% 
-    ggplot() +
-    geom_point(aes(x=model_number, y=log10(error), color=type)) +
-    geom_line(aes(x=model_number, y=log10(error), color=type)) + 
-    labs(x = 'Model Number', y = 'log10(Error)', title = 'Comparison of Training and Test Errors')
-
-error
-
 ```
 
+```{r error_plot, echo=F}
+error %>% 
+    rename(Train=MSE_tr, Test=MSE_tst) %>% 
+    gather(key=type, value=error, Train, Test) %>% 
+    ggplot() +
+    geom_point(aes(x=model_number, y=error, color=type)) +
+    geom_line(aes(x=model_number, y=error, color=type)) + 
+    labs(x = 'Model Number', y = 'Error', title = 'Comparison of Training and Test Errors') +
+    scale_color_discrete(name = "Error Type") +
+    scale_x_discrete(limits = c(1:7)) + 
+    theme_minimal()
 
-
-### Conclusions
+```
 
