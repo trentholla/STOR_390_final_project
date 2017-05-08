@@ -6,12 +6,13 @@ output: html_document
 
 ### Abstract
 
+In this project, we have attempted to model secondary student performance based on the student's past grades, demographic, social, and school information. In particular, we wanted to determine their final grades based on variables other than their previous grades. Being able to do this would give school and educators more time to focus on student's who needed additional help (rather than waiting until the first or second assessment). We created several linear models using both manual and automatic variable selection. The stepwise selection models performed the worst on our test set, probably from overfitting with too many input variables. We were unable to find a model with a test error below 5 without using the student's previous grades. Other influencial variables included the subject of the class, weekday alcohol consumption, number of absences, frequency of going out with friends, and whether or not they paid for additional classes in the same subject. 
  
 
 
 ### Overview
 
-In a 2008 paper [^1], Cortez and Silva predicted the success of Portuguese secondary students using past grades, demographic, social, and school related data. They found that the first and second period grades were essential for very accurate predictions (though there were other relevent variables). In most cases, a Random Forest model was the best choice, followed by Decision Trees. They found that Neurual Networks and Support Vector Machines performed the worst, but this may be due to the many unrelated input variables. 
+In a 2008 paper [^1], Cortez and Silva predicted the success of Portuguese secondary students using past grades, demographic, social, and school related data. The grades are from Portuguese and Math classes, because they tend to be good predictors of student success overall. They found that the first and second period grades were essential for very accurate predictions (though there were other relevent variables). In most cases, a Random Forest model was the best choice, followed by Decision Trees. They found that Neurual Networks and Support Vector Machines performed the worst, but this may be due to the many unrelated input variables. 
 
 However, it would be beneficial if teachers knew at the beginning of each year which students would need additional help to pass. Our objective was to create a model of student performance that did not rely on previous assessments. We also tried some automatic variable selection methods since Cortez and Silva found that only a few of the input variables seemed to be relevant. 
 
