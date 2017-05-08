@@ -26,6 +26,8 @@ library(car)
 
 ```
 
+***
+
 ### Exploratory Data Analysis
 
 The two data sets, one from a Math class and the other from a Portuguese Class, were imported and merged. Observations with a 0 as the final grade (G3) were dropped, as the other variables did not support this outcome. We assume there were other factors that led to the 0 final scores (e.g. the student did not take the assessment). We also removed the observation with the sole final grade of 1 as an outlier (see grouped summary table below). 
@@ -106,7 +108,7 @@ ggplot(data, aes(x = health, y = G3)) +
     theme_classic()
 ```
 
-
+***
 
 ### Modeling Student Performance
 
