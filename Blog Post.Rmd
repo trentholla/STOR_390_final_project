@@ -1,0 +1,309 @@
+---
+title: "Predicting Student Performance"
+author: 'STOR 390: Group 5'
+output: html_document
+---
+Authors: Valerie Davis, Trent Hollandsworth, Matthew Conway
+[University of North Carolina at Chapel Hill, STOR390: Introduction to Data Science, Spring 2017](https://idc9.github.io/stor390/)
+
+
+### Abstract
+
+Better understanding of trends in education can have an enormous impact on how schools can focus to achieve better grades. By understanding a comprehensive model, schools can help reduce drop out rates, increase test scores, and produce higher educated students. In examining core classes such as writting and mathematics, we can attempt to better understand the relationships different factors have on test scores. We have attempted to model secondary student performance based on the student's past grades, demographic, social, and school information. In particular, we wanted to determine their final grades based on variables other than their previous grades. Being able to do this would give school and educators more time to focus on students who needed additional help (rather than waiting until the first or second assessment). We created several linear models using both manual and automatic variable selection. Stepwise selection models performed the worst on our test set due to overfitting. Other influencial variables included the subject of the class, weekday alcohol consumption, number of absences, frequency of going out with friends, and whether or not they paid for additional classes in the same subject. 
+ 
+
+
+### Overview of Data
+
+In a 2008 paper [^1], Cortez and Silva predicted the success of Portuguese secondary students using past grades, demographic, social, and school related data. The grades are from Portuguese and Math classes, because they tend to be good predictors of student success overall. They found that the first and second period grades were essential for very accurate predictions (though there were other relevent variables). In most cases, a Random Forest model was the best choice, followed by Decision Trees. They found that Neurual Networks and Support Vector Machines performed the worst, but this may be due to the many unrelated input variables. 
+
+However, it would be beneficial if teachers knew at the beginning of each year which students would need additional help to pass. Our objective was to create a model of student performance that did not rely on previous assessments. We also tried some automatic variable selection methods since Cortez and Silva found that only a few of the input variables seemed to be relevant. 
+
+[^1]: [Using Data Mining to Predict Secondary School Student Performance, P. Cortez and A. Silva](http://www3.dsi.uminho.pt/pcortez/student.pdf) 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = FALSE)
+
+library(tidyverse)
+library(scales)
+library(car)
+
+```
+
+***
+
+### Exploratory Data Analysis
+
+The two data sets, one from a Math class and the other from a Portuguese Class, were imported and merged. Observations with a 0 as the final grade were dropped, as the other variables did not support this outcome. We assume there were other factors that led to the 0 final scores (e.g. the student did not take the assessment). We also removed the observation with the sole final grade of 1 as an outlier. 
+
+```{r data, include=FALSE}
+# Read in data
+math <- read.table("student-mat.csv", sep=";", header=TRUE)
+port <- read.table("student-por.csv", sep=";", header=TRUE)
+
+
+# Merge data to look at general student aptitude rather than separate math/Portuguese scores 
+math <- mutate(math, class = "M")
+port <- mutate(port, class = "P")
+
+data <- rbind(math, port)
+
+
+# Check final score distributions
+group_by(data, G3) %>%
+    summarize(cnt = n())
+
+# Remove observations with 0 or 1 as G3 score
+data <- data[data$G3 != 0,]
+data <- data[data$G3 != 1,]
+```
+
+
+```{r factorization, include=F}
+data <- mutate(data, Dalc = factor(Dalc),
+               Walc = factor(Walc),
+               health = factor(health),
+               studytime = factor(studytime))
+```
+
+#### Factors Affecting Final Grades
+
+##### Studying
+
+Is our intutition that students who study more perform better correct? Weekly study time is divided into 4 groups: where "1"" is less than 2 hours and "4"" is greater than 10. We see in the plot below that on average, final grades increase as study time increases.
+```{r study, echo=F}
+ggplot(data, aes(x = studytime, y = G3))+ 
+    geom_boxplot() + 
+    labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades') +
+    theme_classic()
+```
+
+##### Absences
+
+As expected, the more time a student is absent during the year, the lower their final grade is. However, we do not know if the lower grade is specifically because they missed class and the infomation taught that day. It's possbile that the reason they are absent (e.g. health issues) is actually the causing the lower grade.  
+```{r absences, echo=F}
+ggplot(data, aes(x = absences, y = G3)) + 
+    geom_jitter(width = 1) + 
+    geom_smooth(method = "lm", color = "red", fill = NA) +
+    labs(x = "Number of Absences", y = "Final Grade", title = "Absences lead to lower final grades") +
+    theme_minimal()
+
+```
+
+##### Parent's Education
+
+A student's final grade increases the higher of level of education that their parents have. The plot for the mother's education is below. We also found that family educational support increases with the parents' education. This is logical, as parents with higher levels of education backgrounds would be more prepared to help their student with homework or other education needs. 
+```{r medu, echo=F}
+ggplot(data, aes(x = Medu, y = G3)) + 
+    geom_jitter(width = 1) + 
+    geom_smooth(method = "lm", color = "red", fill = NA) + 
+    labs(x = "Mother Education Level", y = "Final Grade", title = "Student's perform better the higher the level of education of their mothers") +
+    theme_minimal()
+
+```
+
+##### Health
+
+The following graph has an interesting result, as the healthiest group of students (5) have one of the lowest average grades (which is somewhat counterintuitive). However, the difference in average grades in by less than 1 point among all health levels. 
+```{r health, echo=F}
+ggplot(data, aes(x = health, y = G3)) +  
+    geom_boxplot() + 
+    labs(x = 'Health Status', y = 'Final Grade', title = 'Final Grade Not Impacted by Health') +
+    theme_classic()
+```
+
+***
+
+### Modeling Student Performance
+
+To fit our models, we randomly selected 80% of the data to serve as our training set and created manualy selected linear models, automatic variable selected linear models and evaluated based on training and test set errors. 
+
+```{r train, include=FALSE}
+n <- dim(data)[1]
+
+# number of observations that go in the training st
+n_tr <- floor(n * .8)
+
+# randomly select n_tr numbers, without replacement, from 1...n
+tr_indices <- sample(x=1:n, size=n_tr, replace=FALSE)
+
+# break the data into a non-overlapping train and test set
+train <- data[tr_indices, ]
+test <- data[-tr_indices, ]
+
+```
+
+
+#### Manually Created Linear Models
+
+We created linear models by hand based on our original Exploratory Data Analysis. To start, we used a model that contains all avaliable input variables (similar to the paper that originally used this dataset). Our second model included all variables that were deemed significant at a 90% confidence interval, in order to narrow down important variables. We already knew from Cortex and Silva, that G1 and G2 are the most significant variables. So we decided to add squared and interaction terms involving them in the fourth model. 
+For model five, we removed the two test grades from model three to see if we can accurately predict a student's final grade without knowing their test grades. As mentioned before, this would allow schools more time to give extra help to the students who needed it most. 
+
+```{r manual, echo=TRUE}
+
+# comprehensive linear model ----------------------------------- 
+model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + nursery + higher + internet + romantic + famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class, train)
+
+MSE1 <- mean(model1$residuals^2)
+
+# other simple linear models -------------------------------------------
+model2 <- lm(G3 ~ age + traveltime + schoolsup + paid + goout + Dalc + absences + G1 + G2 + class, train)
+MSE2 <- mean(model2$residuals^2)
+
+model3 <- lm(G3 ~ paid + goout + Dalc + absences + G1 + G2 + class, train)
+MSE3 <- mean(model3$residuals^2)
+
+model4 <- lm(G3 ~ paid + goout + Dalc + absences + G1 + G2 + I(G1^2) + I(G2^2) + I(G1*G2) + class, train)
+MSE4 <- mean(model4$residuals^2)
+
+model5 <- lm(G3 ~ paid + goout + Dalc + absences + class, train)
+MSE5 <- mean(model5$residuals^2)
+
+```
+
+#### Automatic Variable Selection
+
+Additionally, we wanted to see what linear models would be created using automatic feature selection. We started with stepwise selection: forward and backward. We had also intended on using LASSO, but the `glmnet` package requires a matrix of input variables as an argument for LASSO. Many of our input variables are factors and so the matrix would be of type chr--which LASSO cannot run on. We considered separating each of the factors into several columns for each level and using binary variables, but were concerned about it not being comparable to our other models. 
+
+We allowed the first and second period grades to be considered because otherwise our MSE would be greater than 5. Since the final grades range from 0-20, an MSE greater than 5 would not make a decent predictor.
+
+```{r stepwise, echo=FALSE}
+# forward stepwise selections 
+null6 <- lm(G3 ~ 1,data = train)
+full6 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
+                Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
+                famsup + paid + activities + nursery + higher + internet + romantic +
+                famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
+                class,data=train)
+model6 <- step(null1, scope = list(lower=null1, upper=full1), direction="forward", trace = 0)
+model6
+MSE6 <- mean(model6$residuals^2)
+
+# backward stepwise selections 
+null7 <- lm(G3 ~ 1,data = train)
+full7 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
+                Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
+                famsup + paid + activities + nursery + higher + internet + romantic +
+                famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
+                class,data=train)
+model7 <- step(full1, direction="backward", trace = 0)
+model7
+MSE7 <- mean(model7$residuals^2)
+
+```
+
+
+#### Error in Linear Models
+
+We computed the training and test errors for each of thee 7 models. The comprehensive and stepwise models had the lowest training error, but their higher test errors might be a result of overfitting. 
+
+```{r errors, echo=FALSE}
+#error --------------------------------------------------
+models <- list(model1, model2, model3, model4, model5, model6, model7)
+
+error <- tibble(model_number=c(1,2,3,4,5,6,7),
+                MSE_tr=c(MSE1, MSE2, MSE3, MSE4, MSE5, MSE6, MSE7))
+
+error <- error %>% 
+    add_column(MSE_tst=rep(0, 7))
+
+for(i in 1:7){
+    
+    model <- models[[i]]
+    
+    # get the predictions for the test data, compute the residuals
+    
+    test_results <- test %>% 
+        mutate(G3_pred = predict(model, newdata=test)) %>% 
+        mutate(resid_sq = (G3-G3_pred)^2) 
+    
+    # compute the MSE
+    mst_tst <- summarise(test_results, mse_tst = mean(resid_sq))[[1]]
+    
+    error[i, 'MSE_tst'] <- mst_tst
+}
+
+error
+```
+Since model 5 has a test error of almost 8, it's been removed give a clearer picture in the graph below. 
+
+```{r error_plot, echo=F}
+error <- error[-5, ]
+
+error %>% 
+    rename(Train=MSE_tr, Test=MSE_tst) %>% 
+    gather(key=type, value=error, Train, Test) %>% 
+    ggplot() +
+    geom_point(aes(x=model_number, y=error, color=type)) +
+    geom_line(aes(x=model_number, y=error, color=type)) + 
+    labs(x = 'Model Number', y = 'Error', title = 'Comparison of Training and Test Errors') +
+    scale_color_discrete(name = "Error Type") +
+    scale_x_discrete(limits = c(1:4, 6:7)) + 
+    theme_minimal()
+```
+
+
+```{r factorization, include=F}
+data <- mutate(data, Dalc = factor(Dalc),
+               Walc = factor(Walc),
+               health = factor(health),
+               studytime = factor(studytime))
+```
+
+### Findings
+
+From our models and analysis 
+
+### Other Interesting Relationships
+
+#### Why Students Choose a School
+
+We can see below that a higher percentage of the students at Gabriel Pereira chose that school for it's reputation. It makes sense that Gabriel Pereira would have a better reputation, since it has higher scores in both Math and Portuguese. 
+```{r reason, echo=F}
+ggplot(data, aes(x = school, fill = reason)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) + 
+    scale_x_discrete(labels = c("Gabriel Pereira" , "Mousinho da Silveira")) +
+    labs(x = "School", y = "Percent of Student Population", title = "Higher percentage of students chose Gabriel Pereira for it's reputation") +
+    theme_classic()
+
+ggplot(data, aes(x = school, y = G3, color = class)) + 
+    geom_boxplot() +
+    scale_x_discrete(labels = c("Gabriel Pereira" , "Mousinho da Silveira")) +
+    scale_color_discrete(name = "Type of Class", labels = c("Math", "Portuguese")) +
+    labs(x = "School", y = "Final Grade", title = "Gabriel Pereira students have higher average scores in both math and Portuguese") + 
+    theme_classic()
+
+
+```
+
+
+#### Romantic Relationships
+```{r romantic, echo=F}
+ggplot(data, aes(x = romantic, fill = studytime)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) +
+    labs(x = "In a romantic relationship?", y = "Percent of Population", title = "Students in relationships tend to study more", fill = "Study Time") 
+```
+
+
+
+#### Genders and Drinking Habits
+
+Male students drink more than females, but both genders increase their consumption over the weekend.
+```{r drinking, echo=F}
+ggplot(data, aes(x = sex, fill = Dalc)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) +
+    scale_x_discrete(labels = c("Female" , "Male")) +
+    labs(x = "Sex", y = "Percent of Population", title = "Male students drink more than females on workdays", fill = "Workday Alcohol Consumption") +
+    theme_classic()
+
+ggplot(data, aes(x = sex, fill = Walc)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) +
+    scale_x_discrete(labels = c("Female" , "Male")) +
+    labs(x = "Sex", y = "Percent of Population", title = "All students increase alcohol consumption on the weekend", fill = "Weekend Alcohol Consumption") +
+    theme_classic()
+```
