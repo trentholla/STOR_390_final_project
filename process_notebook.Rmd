@@ -191,7 +191,7 @@ MSE7 <- mean(model7$residuals^2)
 
 #### Error in Linear Models
 
-We computed the training and test errors for each of thee 7 models. The stepwise models had the lowest training error, but their higher test errors might be a result of overfitting. 
+We computed the training and test errors for each of thee 7 models. The comprehensive and stepwise models had the lowest training error, but their higher test errors might be a result of overfitting. 
 
 ```{r errors, include=F}
 #error --------------------------------------------------
@@ -219,9 +219,13 @@ for(i in 1:7){
     error[i, 'MSE_tst'] <- mst_tst
 }
 
+error
 ```
+Since model 5 has a test error of almost 8, it's been removed give a clearer picture in the graph below. 
 
 ```{r error_plot, echo=F}
+error <- error[-5, ]
+
 error %>% 
     rename(Train=MSE_tr, Test=MSE_tst) %>% 
     gather(key=type, value=error, Train, Test) %>% 
@@ -230,8 +234,7 @@ error %>%
     geom_line(aes(x=model_number, y=error, color=type)) + 
     labs(x = 'Model Number', y = 'Error', title = 'Comparison of Training and Test Errors') +
     scale_color_discrete(name = "Error Type") +
-    scale_x_discrete(limits = c(1:7)) + 
+    scale_x_discrete(limits = c(1:4, 6:7)) + 
     theme_minimal()
-
 ```
 
