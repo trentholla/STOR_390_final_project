@@ -6,7 +6,7 @@ output: html_document
 
 ### Abstract
 
-In this project, we have attempted to model secondary student performance based on the student's past grades, demographic, social, and school information. In particular, we wanted to determine their final grades based on variables other than their previous grades. Being able to do this would give school and educators more time to focus on student's who needed additional help (rather than waiting until the first or second assessment). We created several linear models using both manual and automatic variable selection. The stepwise selection models performed the worst on our test set, probably from overfitting with too many input variables. We were unable to find a model with a test error below 5 without using the student's previous grades. Other influencial variables included the subject of the class, weekday alcohol consumption, number of absences, frequency of going out with friends, and whether or not they paid for additional classes in the same subject. 
+In this project, we have attempted to model secondary student performance based on the student's past grades, demographic, social, and school information. In particular, we wanted to determine their final grades based on variables other than their previous grades. Being able to do this would give school and educators more time to focus on students who needed additional help (rather than waiting until the first or second assessment). We created several linear models using both manual and automatic variable selection. The stepwise selection models performed the worst on our test set, probably from overfitting with too many input variables. We were unable to find a model with a test error below 5 without using the student's previous grades. Other influencial variables included the subject of the class, weekday alcohol consumption, number of absences, frequency of going out with friends, and whether or not they paid for additional classes in the same subject. 
  
 
 
@@ -162,12 +162,12 @@ MSE5 <- mean(model5$residuals^2)
 
 Additionally, we wanted to see what linear models would be created using automatic feature selection. We started with stepwise selection: forward and backward. We had also intended on using LASSO, but the `glmnet` package requires a matrix of input variables as an argument for LASSO. Many of our input variables are factors and so the matrix would be of type chr--which LASSO cannot run on. We considered separating each of the factors into several columns for each level and using binary variables, but were concerned about it not being comparable to our other models. 
 
-We allowed the first and second period grades to be considered because otherwise our MSE would be greater than 5. 
+We allowed the first and second period grades to be considered because otherwise our MSE would be greater than 5. Since the final grades range from 0-20, an MSE greater than 5 would not make a decent predictor.
 
 ```{r stepwise}
-# forward stepwise selection 
-null1 <- lm(G3 ~ 1,data = train)
-full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
+# forward stepwise selections 
+null6 <- lm(G3 ~ 1,data = train)
+full6 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
                 Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
                 famsup + paid + activities + nursery + higher + internet + romantic +
                 famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
@@ -176,9 +176,9 @@ model6 <- step(null1, scope = list(lower=null1, upper=full1), direction="forward
 model6
 MSE6 <- mean(model6$residuals^2)
 
-# backward stepwise selection 
-null1 <- lm(G3 ~ 1,data = train)
-full1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
+# backward stepwise selections 
+null7 <- lm(G3 ~ 1,data = train)
+full7 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
                 Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + 
                 famsup + paid + activities + nursery + higher + internet + romantic +
                 famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
