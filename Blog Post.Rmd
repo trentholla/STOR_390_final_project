@@ -24,7 +24,6 @@ However, it would be beneficial if teachers knew at the beginning of each year w
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(include = FALSE)
 
 library(tidyverse)
 library(scales)
@@ -73,6 +72,7 @@ data <- mutate(data, Dalc = factor(Dalc),
 ##### Studying
 
 Is our intutition that students who study more perform better correct? Weekly study time is divided into 4 groups: where "1"" is less than 2 hours and "4"" is greater than 10. We see in the plot below that on average, final grades increase as study time increases.
+
 ```{r study, echo=F}
 ggplot(data, aes(x = studytime, y = G3))+ 
     geom_boxplot() + 
