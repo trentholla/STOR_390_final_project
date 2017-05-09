@@ -4,6 +4,7 @@ author: 'STOR 390: Group 5'
 output: html_document
 ---
 Authors: Valerie Davis, Trent Hollandsworth, Matthew Conway
+
 [University of North Carolina at Chapel Hill, STOR390: Introduction to Data Science, Spring 2017](https://idc9.github.io/stor390/)
 
 
@@ -243,13 +244,7 @@ error %>%
     theme_minimal()
 ```
 
-
-```{r factorization, include=F}
-data <- mutate(data, Dalc = factor(Dalc),
-               Walc = factor(Walc),
-               health = factor(health),
-               studytime = factor(studytime))
-```
+***
 
 ### Findings
 
