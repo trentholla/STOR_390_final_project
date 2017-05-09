@@ -9,7 +9,7 @@ Authors: Valerie Davis, Trent Hollandsworth, Matthew Conway
 
 
 
-Better understanding of trends in education can have an enormous impact on how schools help individual students succeed. By understanding what factors affect student performance, schools can help reduce drop out rates, increase test scores, and produce well-educated students. To this end, we analyzed a data set of Portuguese secondary students, which contained information about their personal and academic situations and grades. In particular, we were curious about what relationships may exist between a student's grades and their demographic, social, and school circumstances. Do students with more absences or high weekday alcohol consumption perform poorly in relation to their peers? Does studying and extra paid instruction correspond with higher grades? Additionally, we were interested in how do these factors influence each other. For example, is there a difference in drinking habits of male and female students?
+Better understanding of trends in education can have an enormous impact on how schools help individual students succeed. By understanding what factors affect student performance, schools can help reduce drop out rates, increase test scores, and produce well-educated students. To this end, we analyzed a data set of Portuguese secondary students, which contained information about their personal and academic situations and grades. In particular, we were curious about what relationships may exist between a student's grades and their demographic, social, and school circumstances. Do students with more absences or high weekday alcohol consumption perform poorly in relation to their peers? Does studying and extra paid instruction correspond with higher grades? Additionally, we were interested in how these factors influence each other. For example, is there a difference in drinking habits of male and female students?
 
 ***
 
@@ -17,7 +17,7 @@ Better understanding of trends in education can have an enormous impact on how s
 
 The dataset we used was originally a part of a 2008 paper [^1] by Cortez and Silva. The student's grades are specifically from Math and Portuguese classes because those classes tend to be good predictors of overall student success. They found that the first and second period grades were very significant when predicting a student's final grade using several types of data mining techniques. We aimed to create a predictive model that was informative without using previous grades. Such a model would give schools and educators an idea of which students needed extra help earlier in the year, giving them more time to provide support. Cortez and Silva used all of the other student data when creating their models, but we wanted to find which inputs (besides previous grades) were the most influential and best predictors. 
 
-Students were graded on a scale from 0 to 20. Quite a large number of students received as 0 as their final grade. We assumied that other, undocumented factors led to that final score (e.g. the student did not take the assessment) and therefore removed these observations from the data. We also removed the sole student with a final grade of 1 as an outlier. 
+Students were graded on a scale from 0 to 20. Quite a large number of students received as 0 as their final grade. We assumed that other, undocumented factors led to that final score (e.g. the student did not take the assessment) and therefore removed these observations from the data. We also removed the sole student with a final grade of 1 as an outlier. 
 
 
 [^1]: [Using Data Mining to Predict Secondary School Student Performance, P. Cortez and A. Silva](http://www3.dsi.uminho.pt/pcortez/student.pdf) 
@@ -54,7 +54,7 @@ data <- mutate(data, Dalc = factor(Dalc),
 
 ggplot(data, aes(G3)) +
     geom_bar(fill = "dodgerblue4") + 
-    labs(title = "Student's Final Grades are Grouped between 5 and 20", x = "Final Grade", y = "Number of Students") +
+    labs(title = "Student's final grades are grouped between 5 and 20", x = "Final Grade", y = "Number of Students") +
     scale_x_continuous(breaks = pretty_breaks(n=8)) +
     theme_minimal()
 
@@ -66,34 +66,33 @@ data <- data[data$G3 != 1,]
 
 ***
 
-### Exploratory Data Analysis
+### Factors Affecting Final Grades
 
+We started by looking at the relationship between almost every input variable and final grades. This included elements that we presumed would correlate to higher grades such as studying, interest in higher education, nursery school attendance, and higher educated parents. Things we assumed would be related to poor scores included high absence rate, past failures, high alcohol consumption, and poor health. 
 
-
-
-
-
-#### Factors Affecting Final Grades
+We look at a few of these individually below. 
 
 ##### Studying
 
-Is our intutition that students who study more perform better correct? Weekly study time is divided into 4 groups: where "1"" is less than 2 hours and "4"" is greater than 10. We see in the plot below that on average, final grades increase as study time increases.
+Is our intuition that students who study more perform better correct? We see in the plot below that on average, final grades increase as study time increases. However, this is not by much; the average grade for those who studied less than 2 hours a week is only about 2 points lower than those who studied more than 10 hours.
 
 ```{r study, echo=F}
 ggplot(data, aes(x = studytime, y = G3))+ 
-    geom_boxplot(color = "maroon4", size = 1) + 
+    geom_boxplot(color = "dodgerblue4", size = 1) + 
     scale_x_discrete(labels = c("1" = "<2 hours", "2" = "2-5 hours", "3" = "5-10 hours", "4" = "> 10 hours")) +
-    labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying Improves Final Grades') +
+    labs(x = 'Weekly Study Time', y = 'Final Grade', title = 'Studying improves final grades') +
     theme_classic()
+
 ```
 
 ##### Absences
 
-As expected, the more time a student is absent during the year, the lower their final grade is. However, we do not know if the lower grade is specifically because they missed class and the infomation taught that day. It's possbile that the reason they are absent (e.g. health issues) is actually the causing the lower grade.  
+As expected, the more time a student is absent during the year, the lower their final grade is. However, we do not know if the lower grade is specifically because they missed class and the information taught that day. It's possible that the reason they are absent (e.g. health issues) is actually the causing the lower grade.
+
 ```{r absences, echo=F}
 ggplot(data, aes(x = absences, y = G3)) + 
     geom_jitter(width = 1) + 
-    geom_smooth(method = "lm", color = "red", fill = NA) +
+    geom_smooth(method = "lm", color = "darkred", fill = NA) +
     labs(x = "Number of Absences", y = "Final Grade", title = "Absences lead to lower final grades") +
     theme_minimal()
 
@@ -102,30 +101,32 @@ ggplot(data, aes(x = absences, y = G3)) +
 ##### Parent's Education
 
 A student's final grade increases the higher of level of education that their parents have. The plot for the mother's education is below. We also found that family educational support increases with the parents' education. This is logical, as parents with higher levels of education backgrounds would be more prepared to help their student with homework or other education needs. 
-```{r medu, echo=F}
+
+```{r medu, echo=F, warning=F}
 ggplot(data, aes(x = Medu, y = G3)) + 
-    geom_jitter(width = 1) + 
-    geom_smooth(method = "lm", color = "red", fill = NA) + 
+    geom_jitter(width = .5, height = .4) + 
+    geom_smooth(method = "lm", color = "darkred", fill = NA) + 
     labs(x = "Mother Education Level", y = "Final Grade", title = "Student's perform better the higher the level of education of their mothers") +
+    scale_x_continuous(limits = c(1, 4)) +
     theme_minimal()
 
 ```
 
 ##### Health
 
-The following graph has an interesting result, as the healthiest group of students (5) have one of the lowest average grades (which is somewhat counterintuitive). However, the difference in average grades in by less than 1 point among all health levels. 
+The following graph has an interesting result, as the healthiest group of students have one of the lowest average grades (which is somewhat counterintuitive). However, the difference in average grades in by less than 1 point among all health levels. 
+
 ```{r health, echo=F}
 ggplot(data, aes(x = health, y = G3)) +  
-    geom_boxplot() + 
-    labs(x = 'Health Status', y = 'Final Grade', title = 'Final Grade Not Impacted by Health') +
+    geom_boxplot(color = "dodgerblue4", size = 1) + 
+    labs(x = 'Health Status', y = 'Final Grade', title = 'Final grade not impacted by health') +
+    scale_x_discrete(labels = c("1" = "Very Bad", "2" = "Bad", "3" = "Okay", "4" = "Good", "5" = "Very Good")) +
     theme_classic()
 ```
 
 ***
 
 ### Modeling Student Performance
-
-To fit our models, we randomly selected 80% of the data to serve as our training set and created manualy selected linear models, automatic variable selected linear models and evaluated based on training and test set errors. 
 
 ```{r train, include=FALSE}
 n <- dim(data)[1]
@@ -142,13 +143,17 @@ test <- data[-tr_indices, ]
 
 ```
 
+We created several linear models to attempt to predict a student's final grade. The first five we hand chose which variables to include based on earlier analysis and intuition. For the last two we used a automatic selection method (stepwise). The variables for each model are as follows:
 
-#### Manually Created Linear Models
+1. All available inputs
+2. Age, travel time to school, number of absences, weekday alcohol consumption, first two period grades, subject of class, frequency of going out with friends, school and family education support, taking additional paid classes in the subject
+3. Taking additional paid classes in the subject, frequency of going out with friends, number of absences, weekday alcohol consumption, and first 2 period grades, subject of class
+4. All of variables in 3 as well as the interaction of the first 2 period grades and those grades squared
+5. Taking additional paid classes in the subject, frequency of going out with friends, number of absences, weekday alcohol consumption, subject of class
 
-We created linear models by hand based on our original Exploratory Data Analysis. To start, we used a model that contains all avaliable input variables (similar to the paper that originally used this dataset). Our second model included all variables that were deemed significant at a 90% confidence interval, in order to narrow down important variables. We already knew from Cortex and Silva, that G1 and G2 are the most significant variables. So we decided to add squared and interaction terms involving them in the fourth model. 
-For model five, we removed the two test grades from model three to see if we can accurately predict a student's final grade without knowing their test grades. As mentioned before, this would allow schools more time to give extra help to the students who needed it most. 
+Originally, we had wanted to not use the first and second period grades. But if we didn't, the mean squared error rate was over 5! This means, on average, the squared difference of our predicted grade and the actual grade was over 5. We decided including those grades was worth it to have models that are more accurate.
 
-```{r manual, echo=TRUE}
+```{r manual, include=F}
 
 # comprehensive linear model ----------------------------------- 
 model1 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob+ reason + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + nursery + higher + internet + romantic + famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 + class, train)
@@ -170,13 +175,7 @@ MSE5 <- mean(model5$residuals^2)
 
 ```
 
-#### Automatic Variable Selection
-
-Additionally, we wanted to see what linear models would be created using automatic feature selection. We started with stepwise selection: forward and backward. We had also intended on using LASSO, but the `glmnet` package requires a matrix of input variables as an argument for LASSO. Many of our input variables are factors and so the matrix would be of type chr--which LASSO cannot run on. We considered separating each of the factors into several columns for each level and using binary variables, but were concerned about it not being comparable to our other models. 
-
-We allowed the first and second period grades to be considered because otherwise our MSE would be greater than 5. Since the final grades range from 0-20, an MSE greater than 5 would not make a decent predictor.
-
-```{r stepwise, echo=FALSE}
+```{r stepwise, include=F}
 # forward stepwise selections 
 null6 <- lm(G3 ~ 1,data = train)
 full6 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob +
@@ -185,7 +184,6 @@ full6 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu 
                 famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
                 class,data=train)
 model6 <- step(null6, scope = list(lower=null6, upper=full6), direction="forward", trace = 0)
-model6
 MSE6 <- mean(model6$residuals^2)
 
 # backward stepwise selections 
@@ -196,7 +194,6 @@ full7 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu 
                 famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
                 class,data=train)
 model7 <- step(full7, direction="backward", trace = 0)
-model7
 MSE7 <- mean(model7$residuals^2)
 
 ```
