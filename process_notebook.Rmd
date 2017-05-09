@@ -172,7 +172,7 @@ full6 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu 
                 famsup + paid + activities + nursery + higher + internet + romantic +
                 famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
                 class,data=train)
-model6 <- step(null1, scope = list(lower=null1, upper=full1), direction="forward", trace = 0)
+model6 <- step(null6, scope = list(lower=null6, upper=full6), direction="forward", trace = 0)
 model6
 MSE6 <- mean(model6$residuals^2)
 
@@ -183,7 +183,7 @@ full7 <- lm(G3 ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu 
                 famsup + paid + activities + nursery + higher + internet + romantic +
                 famrel + freetime + goout + Dalc + Walc + health + absences + G1 + G2 +
                 class,data=train)
-model7 <- step(full1, direction="backward", trace = 0)
+model7 <- step(full7, direction="backward", trace = 0)
 model7
 MSE7 <- mean(model7$residuals^2)
 
