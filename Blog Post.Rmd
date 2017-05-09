@@ -11,12 +11,19 @@ Authors: Valerie Davis, Trent Hollandsworth, Matthew Conway
 
 Better understanding of trends in education can have an enormous impact on how schools help individual students succeed. By understanding what factors affect student performance, schools can help reduce drop out rates, increase test scores, and produce well-educated students. To this end, we analyzed a data set of Portuguese secondary students, which contained information about their personal and academic situations and grades. In particular, we were curious about what relationships may exist between a student's grades and their demographic, social, and school circumstances. Do students with more absences or high weekday alcohol consumption perform poorly in relation to their peers? Does studying and extra paid instruction correspond with higher grades? Additionally, we were interested in how do these factors influence each other. For example, is there a difference in drinking habits of male and female students?
 
-The dataset we used was originally a part of a 2008 paper [^1] by Cortez and Silva. The student's grades are specifically from Math and Portuguese classes because those classes tend to be good predictors of overall student success. They found that the first and second period grades were very significant when predicting a student's final grade using several types of data mining techniques. We aimed to create a predictive model that was informative without using previous grades. Such a model would give schools and educators an idea of which students needed extra help earlier in the year, giving them more time to provide support. Cortez and Silva used all of the other student data when creating their models, but we wanted to find which inputs (besides previous grades) were the most influencal and best predictors. 
+***
+
+### The Data
+
+The dataset we used was originally a part of a 2008 paper [^1] by Cortez and Silva. The student's grades are specifically from Math and Portuguese classes because those classes tend to be good predictors of overall student success. They found that the first and second period grades were very significant when predicting a student's final grade using several types of data mining techniques. We aimed to create a predictive model that was informative without using previous grades. Such a model would give schools and educators an idea of which students needed extra help earlier in the year, giving them more time to provide support. Cortez and Silva used all of the other student data when creating their models, but we wanted to find which inputs (besides previous grades) were the most influential and best predictors. 
+
+Students were graded on a scale from 0 to 20. Quite a large number of students received as 0 as their final grade. We assumied that other, undocumented factors led to that final score (e.g. the student did not take the assessment) and therefore removed these observations from the data. We also removed the sole student with a final grade of 1 as an outlier. 
+
 
 [^1]: [Using Data Mining to Predict Secondary School Student Performance, P. Cortez and A. Silva](http://www3.dsi.uminho.pt/pcortez/student.pdf) 
 
 
-```{r setup, include=FALSE}
+```{r setup, include=F}
 
 library(tidyverse)
 library(scales)
@@ -24,13 +31,8 @@ library(car)
 
 ```
 
-***
+```{r data, include=F}
 
-### Exploratory Data Analysis
-
-The two data sets, one from a Math class and the other from a Portuguese Class, were imported and merged. Observations with a 0 as the final grade were dropped, as the other variables did not support this outcome. We assume there were other factors that led to the 0 final scores (e.g. the student did not take the assessment). We also removed the observation with the sole final grade of 1 as an outlier. 
-
-```{r data, include=FALSE}
 # Read in data
 math <- read.table("student-mat.csv", sep=";", header=TRUE)
 port <- read.table("student-por.csv", sep=";", header=TRUE)
@@ -42,10 +44,19 @@ port <- mutate(port, class = "P")
 
 data <- rbind(math, port)
 
+data <- mutate(data, Dalc = factor(Dalc),
+               Walc = factor(Walc),
+               health = factor(health),
+               studytime = factor(studytime))
+```
 
-# Check final score distributions
-group_by(data, G3) %>%
-    summarize(cnt = n())
+```{r grades, echo=F}
+
+ggplot(data, aes(G3)) +
+    geom_bar(fill = "dodgerblue4") + 
+    labs(title = "Student's Final Grades are Grouped between 5 and 20", x = "Final Grade", y = "Number of Students") +
+    scale_x_continuous(breaks = pretty_breaks(n=8)) +
+    theme_minimal()
 
 # Remove observations with 0 or 1 as G3 score
 data <- data[data$G3 != 0,]
@@ -53,12 +64,14 @@ data <- data[data$G3 != 1,]
 ```
 
 
-```{r factorization, include=F}
-data <- mutate(data, Dalc = factor(Dalc),
-               Walc = factor(Walc),
-               health = factor(health),
-               studytime = factor(studytime))
-```
+***
+
+### Exploratory Data Analysis
+
+
+
+
+
 
 #### Factors Affecting Final Grades
 
