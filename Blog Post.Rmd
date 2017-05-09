@@ -201,9 +201,9 @@ MSE7 <- mean(model7$residuals^2)
 
 #### Error in Linear Models
 
-We computed the training and test errors for each of thee 7 models. The comprehensive and stepwise models had the lowest training error, but their higher test errors might be a result of overfitting. 
+We computed the training and test errors for each of the 7 models (the plot does not contain the errors for model 5 because the test error was over 8). The models that were created with an automatic process and the one that included all the inputs had the lowest training errors, but the higher test errors. This means they would likely be less accurate than the others on a new data set (i.e. for a new school year). Model 2 seems to have performed the best. 
 
-```{r errors, echo=FALSE}
+```{r errors, include=F}
 #error --------------------------------------------------
 models <- list(model1, model2, model3, model4, model5, model6, model7)
 
@@ -229,9 +229,7 @@ for(i in 1:7){
     error[i, 'MSE_tst'] <- mst_tst
 }
 
-error
 ```
-Since model 5 has a test error of almost 8, it's been removed give a clearer picture in the graph below. 
 
 ```{r error_plot, echo=F}
 error <- error[-5, ]
@@ -250,18 +248,17 @@ error %>%
 
 ***
 
-### Findings
-
-From our models and analysis 
-
 ### Other Interesting Relationships
+
+We were also interested in the relationships between the student's demographic, social, and school circumstances. Below we explore a few of our more interesting findings. 
 
 #### Why Students Choose a School
 
 We can see below that a higher percentage of the students at Gabriel Pereira chose that school for it's reputation. It makes sense that Gabriel Pereira would have a better reputation, since it has higher scores in both Math and Portuguese. 
+
 ```{r reason, echo=F}
 ggplot(data, aes(x = school, fill = reason)) + 
-    geom_bar(position = "fill") + 
+    geom_bar(position = "fill") +
     scale_y_continuous(labels = percent) + 
     scale_x_discrete(labels = c("Gabriel Pereira" , "Mousinho da Silveira")) +
     labs(x = "School", y = "Percent of Student Population", title = "Higher percentage of students chose Gabriel Pereira for it's reputation") +
@@ -274,28 +271,18 @@ ggplot(data, aes(x = school, y = G3, color = class)) +
     labs(x = "School", y = "Final Grade", title = "Gabriel Pereira students have higher average scores in both math and Portuguese") + 
     theme_classic()
 
-
 ```
-
-
-#### Romantic Relationships
-```{r romantic, echo=F}
-ggplot(data, aes(x = romantic, fill = studytime)) + 
-    geom_bar(position = "fill") + 
-    scale_y_continuous(labels = percent) +
-    labs(x = "In a romantic relationship?", y = "Percent of Population", title = "Students in relationships tend to study more", fill = "Study Time") 
-```
-
-
 
 #### Genders and Drinking Habits
 
 Male students drink more than females, but both genders increase their consumption over the weekend.
+
 ```{r drinking, echo=F}
 ggplot(data, aes(x = sex, fill = Dalc)) + 
     geom_bar(position = "fill") + 
     scale_y_continuous(labels = percent) +
     scale_x_discrete(labels = c("Female" , "Male")) +
+    scale_fill_discrete(labels = c("1: Very Low", "2", "3", "4", "5: Very High")) +
     labs(x = "Sex", y = "Percent of Population", title = "Male students drink more than females on workdays", fill = "Workday Alcohol Consumption") +
     theme_classic()
 
@@ -303,6 +290,22 @@ ggplot(data, aes(x = sex, fill = Walc)) +
     geom_bar(position = "fill") + 
     scale_y_continuous(labels = percent) +
     scale_x_discrete(labels = c("Female" , "Male")) +
+    scale_fill_discrete(labels = c("1: Very Low", "2", "3", "4", "5: Very High")) +
     labs(x = "Sex", y = "Percent of Population", title = "All students increase alcohol consumption on the weekend", fill = "Weekend Alcohol Consumption") +
     theme_classic()
 ```
+
+#### Romantic Relationships
+
+Being in a romantic relationship does not seem to have a negative connection with time spend studying. 
+
+```{r romantic, echo=F}
+ggplot(data, aes(x = romantic, fill = studytime)) + 
+    geom_bar(position = "fill") + 
+    scale_y_continuous(labels = percent) +
+    scale_fill_discrete(labels = c("< 2 hours", "2-5 hours", "5-10 hours", ">10 hours")) +
+    scale_x_discrete(labels = c("no" = "No", "yes" = "Yes")) +
+    labs(x = "In a romantic relationship?", y = "Percent of Population", title = "Students in relationships tend to study more", fill = "Weekly Study Time") 
+```
+
+
